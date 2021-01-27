@@ -1,3 +1,5 @@
+package chip8;
+
 public class Registry {
 
     /**
@@ -21,12 +23,12 @@ public class Registry {
     public byte soundTimerReg;
 
     /**
-     * Main program counter registry.
+     * Program counter registry.
      */
     public short PC;
 
     /**
-     * Main stack pointer registry.
+     * Stack pointer registry.
      */
     public byte SP;
 

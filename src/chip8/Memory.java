@@ -1,3 +1,5 @@
+package chip8;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -156,14 +158,14 @@ public class Memory {
     }
 
     public void printMemory() {
-        System.out.println("Memory:");
+        System.out.println("Chip8.Memory:");
         for (int i = 0; i < memory.length; i++) {
             System.out.println("0x" + Integer.toHexString(i).toUpperCase() + ":" + memory[i]);
         }
     }
 
     public void printMemory(short from, short to) {
-        System.out.println("Memory from " + from + " to " + to);
+        System.out.println("Chip8.Memory from " + from + " to " + to);
         if (from < 0 || from > 0xFFF || to < 0 || to > 0xFFF) {
             System.out.println("Address out of range!");
         }

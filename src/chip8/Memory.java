@@ -4,7 +4,27 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Class representing chip-8's memory.
+ */
 public class Memory {
+
+    public static final byte SPRITE_0 = 0;
+    public static final byte SPRITE_1 = 5;
+    public static final byte SPRITE_2 = 10;
+    public static final byte SPRITE_3 = 15;
+    public static final byte SPRITE_4 = 20;
+    public static final byte SPRITE_5 = 25;
+    public static final byte SPRITE_6 = 30;
+    public static final byte SPRITE_7 = 35;
+    public static final byte SPRITE_8 = 40;
+    public static final byte SPRITE_9 = 45;
+    public static final byte SPRITE_A = 50;
+    public static final byte SPRITE_B = 55;
+    public static final byte SPRITE_C = 60;
+    public static final byte SPRITE_D = 65;
+    public static final byte SPRITE_E = 70;
+    public static final byte SPRITE_F = 75;
 
     /**
      * A 2D array holding all the initial sprites representing hex digits from 0 to F,
@@ -45,7 +65,7 @@ public class Memory {
             },
             // "8" sprite
             {
-                    (byte) 0xF0, (byte) 0xF0, (byte) 0xF0, (byte) 0x10, (byte) 0xF0
+                    (byte) 0xF0, (byte) 0x90, (byte) 0xF0, (byte) 0x90, (byte) 0xF0
             },
             // "9" sprite
             {
@@ -157,6 +177,9 @@ public class Memory {
         return true;
     }
 
+    /**
+     * Prints out the memory.
+     */
     public void printMemory() {
         System.out.println("Chip8.Memory:");
         for (int i = 0; i < memory.length; i++) {
@@ -164,6 +187,11 @@ public class Memory {
         }
     }
 
+    /**
+     * Prints out a chunk of memory.
+     * @param from Beginning adresss.
+     * @param to End adress.
+     */
     public void printMemory(short from, short to) {
         System.out.println("Chip8.Memory from " + from + " to " + to);
         if (from < 0 || from > 0xFFF || to < 0 || to > 0xFFF) {
@@ -174,6 +202,9 @@ public class Memory {
         }
     }
 
+    /**
+     * Prints out the stack.
+     */
     public void printStack() {
         System.out.println("Stack:");
         for (int i = 0; i < stack.length; i++) {

@@ -52,6 +52,7 @@ public class Display {
         frame.setVisible(true);
     }
 
+    //TODO return collisions
     /**
      * Sets a single pixel on the screen.
      * @param x The X position on the screen.

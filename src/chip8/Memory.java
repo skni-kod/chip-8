@@ -154,27 +154,25 @@ public class Memory {
                 pointer++;
             }
         }
-
-        System.out.println(pointer);
     }
 
     /**
      * Loads a file to the memory.
      * @param path Path to the file.
-     * @return True if successful, otherwise false.
+     * @return Size of the loaded file or -1 if failed.
      */
-    public boolean loadFile(String path) throws IOException {
+    public int loadFile(String path) throws IOException {
         byte[] program = Files.readAllBytes(new File(path).toPath());
         if (program.length > 0xFFF - 0x200) {
             System.out.println("File's size too big to fit!");
-            return false;
+            return -1;
         }
         short pointer = 0x200;
         for (byte x : program) {
             memory[pointer] = x;
             pointer++;
         }
-        return true;
+        return program.length;
     }
 
     /**

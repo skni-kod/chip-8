@@ -48,34 +48,34 @@ public class CPU {
 
             case 0x01:
                 //1nnn - Jump to location nnn.
-                    jump((short) (currentInstr & 0x0FFF));
+                jump((short) (currentInstr & 0x0FFF));
                 break;
 
-//            case 0x02:
-//                //2nnn - Call subroutine at nnn.
-//                System.out.println(String.format("CALL %03x", (instr & 0x0FFF)));
-//                break;
-//
-//            case 0x03:
-//                //3xkk - Skip next instruction if Vx = kk
-//                System.out.println(String.format("SE V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
-//            case 0x04:
-//                //4xkk - Skip next instruction if Vx != kk
-//                System.out.println(String.format("SNE V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
-//            case 0x05:
-//                //5xy0 - Skip next instruction if Vx = Vy
-//                System.out.println(String.format("SE V%01x, V%02x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                break;
-//
-//            case 0x06:
-//                //6xkk - Set Vx = kk
-//                System.out.println(String.format("LD V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
+            case 0x02:
+                //2nnn - Call subroutine at nnn.
+                callSubroutine((short) (currentInstr & 0x0FFF));
+                break;
+
+            case 0x03:
+                //3xkk - Skip next instruction if Vx = kk
+                skipEqual((byte) ((currentInstr & 0x0F00) >> 8), (byte) (currentInstr & 0x0FF));
+                break;
+
+            case 0x04:
+                //4xkk - Skip next instruction if Vx != kk
+                skipNotEqual((byte) ((currentInstr & 0x0F00) >> 8), (byte) (currentInstr & 0x0FF));
+                break;
+
+            case 0x05:
+                //5xy0 - Skip next instruction if Vx = Vy
+                skipEqualRegs((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                break;
+
+            case 0x06:
+                //6xkk - Set Vx = kk
+                setRegVal((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x0FF)));
+                break;
+
 //            case 0x07:
 //                //7xkk - Set Vx = Vx + kk
 //                System.out.println(String.format("ADD V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
@@ -221,5 +221,63 @@ public class CPU {
         registry.PC = adress;
     }
 
+    /**
+     * 2nnn - CALL addr
+     * Call subroutine at nnn.
+     * Increments the SP, puts the current PC on the top of the stack.
+     */
+    public void callSubroutine(short address) {
+        registry.SP = (byte) (registry.SP + 1); //increment the SP
+        memory.setStack(registry.SP, registry.PC); //set stack[SP] = PC
+        registry.PC = address;
+    }
 
+    /**
+     * 3xkk - SE Vx, byte
+     * Skip next instruction if Vx == kk.
+     * If equal, increment PC by 2.
+     * @param reg Register to compare.
+     * @param value Value to compare.
+     */
+    public void skipEqual(byte reg, byte value) {
+        if (registry.VReg[reg] == value) {
+            registry.PC = (short) (registry.PC + 2);
+        }
+    }
+
+    /**
+     * 4xkk - SN Vx, byte
+     * Skip next instruction if Vx != kk.
+     * If not equal, increment PC by 2.
+     * @param reg Register to compare.
+     * @param value Value to compare.
+     */
+    public void skipNotEqual(byte reg, byte value) {
+        if (registry.VReg[reg] != value) {
+            registry.PC = (short) (registry.PC + 2);
+        }
+    }
+
+    /**
+     * 5xy0 - SE Vx, Vy
+     * Skip next instruction, if Vx == Vx.
+     * If regs are equal, increment PC by 2.
+     * @param first First register to compare.
+     * @param second Second register to compare.
+     */
+    public void skipEqualRegs(byte first, byte second) {
+        if (registry.VReg[first] == registry.VReg[second]) {
+            registry.PC = (short) (registry.PC + 2);
+        }
+    }
+
+    /**
+     * 6xkk - LD Vx, byte
+     * Set Vx = kk.
+     * @param reg Register to set.
+     * @param val Value to set.
+     */
+    public void setRegVal(byte reg, byte val) {
+        registry.VReg[reg] = val;
+    }
 }

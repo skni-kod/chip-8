@@ -15,6 +15,15 @@ public class Chip8 {
         registry = new Registry();
         display = new Display(12, memory, keyboard);
         cpu = new CPU(memory, registry, display, keyboard);
+
+        int size;
+        try {
+            size = memory.loadFile("Fishie.ch8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        display.initDisplay();
     }
 
     public void loop() {

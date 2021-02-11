@@ -143,6 +143,25 @@ public class Memory {
         }
     }
 
+    public short getStack(short address) {
+        if (address > 0x0F) {
+            System.out.println("Stack address " + address +  " out of range!");
+            return 0x0;
+        } else {
+            return stack[address];
+        }
+    }
+
+    public boolean setStack(short address, short value) {
+        if (address > 0x0F) {
+            System.out.println("Stack address " + address +  " out of range!");
+            return false;
+        } else {
+            stack[address] = value;
+            return true;
+        }
+    }
+
     /**
      * Initializes memory with default sprites from 0 to F, each 5 bytes long.
      */

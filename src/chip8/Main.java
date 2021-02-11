@@ -9,14 +9,6 @@ import java.security.Key;
 public class Main {
 
     public static void main(String[] args) {
-        Memory memory = new Memory();
-        Registry registry = new Registry();
-        int size = 0;
-        try {
-            size = memory.loadFile("Fishie.ch8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         Chip8 chip8 = new Chip8();
         chip8.loop();

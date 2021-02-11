@@ -2,6 +2,7 @@ package chip8;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public class Display {
     /**
@@ -46,7 +47,9 @@ public class Display {
 
         this.memory = memory;
         this.keyboard = keyboard;
+    }
 
+    public void initDisplay() {
         frame = new JFrame("Chip-8");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -61,35 +64,57 @@ public class Display {
     }
 
     //TODO return collisions
-    //TODO
+    //TODO XOR-ing
     /**
      * Sets a single pixel on the screen.
      * @param x The X position on the screen.
      * @param y The Y position on the screen.
      * @param value True to turn on, False to turn off.
      */
-    void setPixel(int x, int y, boolean value) {
+    public void setPixel(int x, int y, boolean value, boolean sprite) {
         if (x < 0 || x > 63) {
             System.out.println("Screen X coordinate out of range.");
         } else if (y < 0 || y > 31) {
             System.out.println("Screen Y coordinate out of range.");
         }
-
-        //XOR-ing the value on the screen
-        screen[x % 64][y % 32] = value ^ screen[x % 64][y % 32];
-
+        if (sprite) {
+            //XOR-ing the value on the screen
+            screen[x % 64][y % 32] = value ^ screen[x % 64][y % 32];
+        } else {
+            screen[x][y] = value;
+        }
     }
 
-    void drawSprite(int x, int y, int adress) {
+    public boolean getPixel(int x, int y) {
+        return screen[x][y];
+    }
+
+    /**
+     * Draws a sprite on the screen at x and y position, from the memory adress.
+     * @param x The x position on the screen.
+     * @param y The y position on the screen.
+     * @param adress Adress of the sprite's beginning in the memory.
+     */
+    public void drawSprite(int x, int y, int adress) {
         for (int i = 0; i < 5; i++) {
             byte value = memory.get((byte) (adress + i));
             for (int j = 0; j < 8; j++) {
-                this.setPixel(x + (7 - j), y + i, (value & (0x1 << j)) != 0);
+                this.setPixel(x + (7 - j), y + i, (value & (0x1 << j)) != 0, true);
             }
         }
     }
 
-    void render() {
+    public boolean[][] getScreen() {
+        boolean[][] screenCopy = new boolean[64][32];
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < 32; y++) {
+                screenCopy[x][y] = screen[x][y];
+            }
+        }
+        return screenCopy;
+    }
+
+    public void render() {
         frame.repaint();
     }
 

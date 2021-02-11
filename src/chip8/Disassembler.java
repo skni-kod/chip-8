@@ -1,17 +1,28 @@
 package chip8;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 /**
  * Class representing a simple linear chip-8 program disassembler.
  * It's not very effective as it treats binary data stored in ROM (sprites) as opcodes.
  */
 public class Disassembler {
 
+    /**
+     * Reference to the memory.
+     */
     Memory memory;
 
     public Disassembler(Memory memory) {
         this.memory = memory;
     }
 
+    /**
+     * Disassemble a single instruction at a certain memory adress.
+     * This method treats every 2 bytes of memory as an instruction - it can't distinguish data from instructions.
+     * @param PC Adress of the instruction in the memory.
+     */
     public void disassemble(short PC) {
         // Two bytes of the instruction
         byte first = memory.get(PC);
@@ -35,7 +46,7 @@ public class Disassembler {
                     //00EE - Returns from a subroutine
                     System.out.println("RET");
                 } else {
-                    System.out.println();
+                    System.out.println(String.format("SYS %03X", (instr & 0x0FFF)));
                 }
                 break;
 
@@ -103,7 +114,7 @@ public class Disassembler {
                     //8xyE - Set Vx = Vx SHL 1, store most significant bit on VF
                     System.out.println(String.format("SHL V%01x {, V%01x}", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
                 } else {
-                    System.out.println();
+                    System.out.println("UNKN 8");
                 }
                 break;
 
@@ -129,7 +140,7 @@ public class Disassembler {
 
             case 0x0D:
                 //Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
-                System.out.println(String.format("RND V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
+                System.out.println(String.format("DRW V%01x, V%01x, %01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4, (instr & 0x0F)));
                 break;
 
             case 0x0E:
@@ -140,7 +151,7 @@ public class Disassembler {
                     //ExA1 - Skip next instruction if key with the value of Vx is not pressed.
                     System.out.println(String.format("SKNP V%01x", (instr & 0x0F00) >> 8));
                 } else {
-                    System.out.println();
+                    System.out.println("UNKN E");
                 }
                 break;
 
@@ -173,13 +184,29 @@ public class Disassembler {
                     //Fx65 - Read registers V0 through Vx from memory starting at location I.
                     System.out.println(String.format("LD V%01x, [I]", (instr & 0x0F00) >> 8));
                 } else {
-                    System.out.println();
+                    System.out.println("UNKN F");
                 }
                 break;
 
             default:
                 System.out.println();
                 break;
+        }
+    }
+
+    public void disassembleToFile(short start, int size, String filename) {
+        try {
+            PrintStream out = new PrintStream(new FileOutputStream(filename));
+            System.setOut(out);
+
+            for (int i = start; i < start + size; i += 2) {
+                this.disassemble((short) (i));
+            }
+
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

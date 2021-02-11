@@ -20,6 +20,11 @@ public class Display {
     private Memory memory;
 
     /**
+     * Reference to the keyboard.
+     */
+    private Keyboard keyboard;
+
+    /**
      * Swing JFrame.
      */
     private JFrame frame;
@@ -34,25 +39,29 @@ public class Display {
      * @param pixelSize Size of a single pixel on the screen.
      * @param memory Reference to chip's memory.
      */
-    public Display(int pixelSize, Memory memory) {
+    public Display(int pixelSize, Memory memory, Keyboard keyboard) {
         this.pixelSize = pixelSize;
 
         screen = new boolean[64][32];
 
         this.memory = memory;
+        this.keyboard = keyboard;
 
         frame = new JFrame("Chip-8");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        frame.addKeyListener(keyboard);
+
         drawBoard = new DrawBoard();
-        drawBoard.setPreferredSize(new Dimension(800, 600));
+        drawBoard.setPreferredSize(new Dimension(pixelSize * 64, pixelSize * 32));
         frame.getContentPane().add(drawBoard);
 
-        frame.setSize(800, 600);
+        frame.setSize(new Dimension(pixelSize * 64 + 32, pixelSize * 32 + 64));
         frame.setVisible(true);
     }
 
     //TODO return collisions
+    //TODO
     /**
      * Sets a single pixel on the screen.
      * @param x The X position on the screen.
@@ -64,9 +73,11 @@ public class Display {
             System.out.println("Screen X coordinate out of range.");
         } else if (y < 0 || y > 31) {
             System.out.println("Screen Y coordinate out of range.");
-        } else {
-            screen[x][y] = value;
         }
+
+        //XOR-ing the value on the screen
+        screen[x % 64][y % 32] = value ^ screen[x % 64][y % 32];
+
     }
 
     void drawSprite(int x, int y, int adress) {
@@ -86,11 +97,10 @@ public class Display {
      * DrawBoard class overriding the painComponent. Draws the contents of the screen to the JPanel visible in JFrame.
      */
     private class DrawBoard extends JPanel {
+
         @Override
         public Dimension getPreferredSize() {
-            //return super.getPreferredSize();
-            return new Dimension(800, 600);
-
+            return new Dimension(pixelSize * 64, pixelSize * 32);
         }
 
         @Override

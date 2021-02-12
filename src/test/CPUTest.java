@@ -135,6 +135,14 @@ public class CPUTest {
         cpu.skipEqualRegs((byte) 1, (byte) 3);
 
         assertEquals(0x202, registry.PC); //compared values are equal, PC incremented by 2
+
+        registry.PC = 0x200;
+        registry.VReg[1] = 0x05;
+        registry.VReg[3] = 0x09;
+
+        cpu.skipEqualRegs((byte) 1, (byte) 3);
+
+        assertEquals(0x200, registry.PC); //compared values are not equal, PC stays the same
     }
 
     @Test
@@ -238,7 +246,7 @@ public class CPUTest {
 
     @Test
     public void subRegRegTest() {
-        //0x3C - 0x0D = 0x2F, carry = 1
+        //0x3C - 0x0D = 0x2F, VF (not carry) = 1
         registry.VReg[1] = (byte) 0x3C;
         registry.VReg[2] = (byte) 0x0D;
 
@@ -247,7 +255,7 @@ public class CPUTest {
         assertEquals((byte) 0x2F, registry.VReg[1]);
         assertEquals((byte) 0x1, registry.VReg[0xF]);
 
-        //0x01 - 0x0D = 0xF4, carry = 0 (sub with borrow 0x101 - 0x0D = 0xF4)
+        //0x01 - 0x0D = 0xF4, VF (not carry) = 0 (sub with borrow 0x101 - 0x0D = 0xF4)
         registry.VReg[3] = (byte) 0x01;
         registry.VReg[4] = (byte) 0x0D;
 
@@ -255,5 +263,83 @@ public class CPUTest {
 
         assertEquals((byte) 0xF4, registry.VReg[3]);
         assertEquals((byte) 0x0, registry.VReg[0xF]);
+    }
+
+    @Test
+    public void shiftRightTest() {
+        //0x0A >> 1 = 0x5, VF = 0
+        registry.VReg[2] = (byte) 0x0A;
+
+        cpu.shiftRight((byte) 2);
+
+        assertEquals((byte) 0x5, registry.VReg[2]);
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //0xFF >> 1 = 0x7F, VF = 1
+        registry.VReg[2] = (byte) 0xFF;
+
+        cpu.shiftRight((byte) 2);
+
+        assertEquals((byte) 0x7F, registry.VReg[2]);
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
+    }
+
+    @Test
+    public void subNegativeRegRegTest() {
+        //0x0D - 0x3C = 0xD1, VF (not carry) = 0
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0D;
+
+        cpu.subNegativeRegReg((byte) 1, (byte) 2);
+
+        assertEquals((byte) 0xD1, registry.VReg[1]);
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //0x0D - 0x01 = 0x0C, VF (not carry) = 1
+        registry.VReg[3] = (byte) 0x01;
+        registry.VReg[4] = (byte) 0x0D;
+
+        cpu.subNegativeRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0x0C, registry.VReg[3]);
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
+    }
+
+    @Test
+    public void shiftLeftTest() {
+        //0x0A << 1 = 0x14, VF = 0
+        registry.VReg[2] = (byte) 0x0A;
+
+        cpu.shiftLeft((byte) 2);
+
+        assertEquals((byte) 0x14, registry.VReg[2]);
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //0xFF << 1 = 0xFE, VF = 1 (0xFF << 1 = 0x1FE -> lower byte -> 0xFE)
+        registry.VReg[2] = (byte) 0xFF;
+
+        cpu.shiftLeft((byte) 2);
+
+        assertEquals((byte) 0xFE, registry.VReg[2]);
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
+    }
+
+    @Test
+    public void skipNotEqualRegsTest() {
+        registry.PC = 0x200;
+        registry.VReg[1] = 0x05;
+        registry.VReg[3] = 0x05;
+
+        cpu.skipNotEqualRegs((byte) 1, (byte) 3);
+
+        assertEquals(0x200, registry.PC); //compared values are equal, PC stays the same
+
+        registry.PC = 0x200;
+        registry.VReg[1] = 0x05;
+        registry.VReg[3] = 0x09;
+
+        cpu.skipNotEqualRegs((byte) 1, (byte) 3);
+
+        assertEquals(0x202, registry.PC); //compared values are not equal, PC incremented by 2
     }
 }

@@ -100,21 +100,88 @@ public class CPU {
                 } else if ((currentInstr & 0x0F) == 0x05) {
                     //8xy5 - Set Vx = Vx - Vy, set VF = NOT borrow
                     subRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x06) {
+                    //8xy6 - Set Vx = Vx SHR 1, store least significant bit in VF
+                    shiftRight((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0x0F) == 0x07) {
+                    //8xy7 - Set Vx = Vy - Vx, set VF = NOT borrow
+                    subNegativeRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x0E) {
+                    //8xyE - Set Vx = Vx SHL 1, store most significant bit on VF
+                    shiftLeft((byte) ((currentInstr & 0x0F00) >> 8));
                 }
-//                else if ((currentInstr & 0x0F) == 0x06) {
-//                    //8xy6 - Set Vx = Vx SHR 1, store least significant bit in VF
-//                    shiftRight((byte) ((currentInstr & 0x0F00) >> 8));
-//                } else if ((currentInstr & 0x0F) == 0x07) {
-//                    //8xy7 - Set Vx = Vy - Vx, set VF = NOT borrow
-//                    subNegativeRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
-//                } else if ((currentInstr & 0x0F) == 0x0E) {
-//                    //8xyE - Set Vx = Vx SHL 1, store most significant bit on VF
-//                    shiftLeft((byte) ((currentInstr & 0x0F00) >> 8));
-//                }
 
                 break;
 
+            case 0x09:
+                //9xy0 - Skip next instruction if Vx != Vy
+                skipNotEqualRegs((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                break;
 
+//            case 0x0A:
+//                //Annn - set I = nnn
+//                System.out.println(String.format("LD I, %03x", (instr & 0x0FFF)));
+//                break;
+//
+//            case 0x0B:
+//                //Bnnn - Jump to location nnn + V0
+//                System.out.println(String.format("JP V0, %03x", (instr & 0x0FFF)));
+//                break;
+//
+//            case 0x0C:
+//                //Cxkk - Set Vx = random byte AND kk
+//                System.out.println(String.format("RND V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
+//                break;
+//
+//            case 0x0D:
+//                //Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
+//                System.out.println(String.format("DRW V%01x, V%01x, %01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4, (instr & 0x0F)));
+//                break;
+//
+//            case 0x0E:
+//                if ((instr & 0xFF) == 0x9E) {
+//                    //Ex9E - Skip next instruction if key with value of Vx is pressed.
+//                    System.out.println(String.format("SKP V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0xA1) {
+//                    //ExA1 - Skip next instruction if key with the value of Vx is not pressed.
+//                    System.out.println(String.format("SKNP V%01x", (instr & 0x0F00) >> 8));
+//                } else {
+//                    System.out.println("UNKN E");
+//                }
+//                break;
+//
+//            case 0x0F:
+//                if ((instr & 0xFF) == 0x07) {
+//                    //Fx07 - Set Vx = delay timer value.
+//                    System.out.println(String.format("LD V%01x, DT", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x0A) {
+//                    //Fx0A - Wait for a key press, store the value of the key in Vx.
+//                    System.out.println(String.format("LD V%01x, K", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x15) {
+//                    //Fx15 - Set delay timer = Vx
+//                    System.out.println(String.format("LD DT, V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x18) {
+//                    //Fx18 - Set sound timer = Vx
+//                    System.out.println(String.format("LD ST, V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x1E) {
+//                    //Fx1E - Set I = I + Vx
+//                    System.out.println(String.format("ADD I, V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x29) {
+//                    //Fx29 - Set I = location of sprite for digit Vx
+//                    System.out.println(String.format("LD F, V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x33) {
+//                    //Fx33 - Store BCD representation of Vx in memory locations I, I+1, I+2
+//                    System.out.println(String.format("LD B, V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x55) {
+//                    //Fx55 - Store registers V0 through Vx in memory starting at location I.
+//                    System.out.println(String.format("LD [I], V%01x", (instr & 0x0F00) >> 8));
+//                } else if ((instr & 0xFF) == 0x65) {
+//                    //Fx65 - Read registers V0 through Vx from memory starting at location I.
+//                    System.out.println(String.format("LD V%01x, [I]", (instr & 0x0F00) >> 8));
+//                } else {
+//                    System.out.println("UNKN F");
+//                }
+//                break;
 
             default:
                 System.out.println();
@@ -123,7 +190,7 @@ public class CPU {
     }
 
     /**
-     * 00E0 - CLS
+     * 00E0 - CLS.
      * Clear the display.
      */
     public void clearScreen() {
@@ -135,7 +202,7 @@ public class CPU {
     }
 
     /**
-     * 00EE - RET
+     * 00EE - RET.
      * Return from a subroutine.
      * Sets the program counter to the address at the top of the stack, then decrements the SP.
      */
@@ -145,7 +212,7 @@ public class CPU {
     }
 
     /**
-     * 1nnn - JP addr
+     * 1nnn - JP addr.
      * Sets the program counter to nnn.
      * @param adress Adress of the jump location.
      */
@@ -154,7 +221,7 @@ public class CPU {
     }
 
     /**
-     * 2nnn - CALL addr
+     * 2nnn - CALL addr.
      * Call subroutine at nnn.
      * Increments the SP, puts the current PC on the top of the stack.
      */
@@ -165,7 +232,7 @@ public class CPU {
     }
 
     /**
-     * 3xkk - SE Vx, byte
+     * 3xkk - SE Vx, byte.
      * Skip next instruction if Vx == kk.
      * If equal, increment PC by 2.
      * @param reg Register to compare.
@@ -178,7 +245,7 @@ public class CPU {
     }
 
     /**
-     * 4xkk - SN Vx, byte
+     * 4xkk - SN Vx, byte.
      * Skip next instruction if Vx != kk.
      * If not equal, increment PC by 2.
      * @param reg Register to compare.
@@ -191,7 +258,7 @@ public class CPU {
     }
 
     /**
-     * 5xy0 - SE Vx, Vy
+     * 5xy0 - SE Vx, Vy.
      * Skip next instruction, if Vx == Vx.
      * If regs are equal, increment PC by 2.
      * @param first First register to compare.
@@ -204,7 +271,7 @@ public class CPU {
     }
 
     /**
-     * 6xkk - LD Vx, byte
+     * 6xkk - LD Vx, byte.
      * Set Vx = kk.
      * @param reg Register to set.
      * @param val Value to set.
@@ -214,7 +281,7 @@ public class CPU {
     }
 
     /**
-     * 7xkk - ADD Vx, byte
+     * 7xkk - ADD Vx, byte.
      * Set Vx = Vx + kk.
      * Adds the value kk to the value of register Vx, stores the result in Vx.
      * @param reg Register to add to.
@@ -225,7 +292,7 @@ public class CPU {
     }
 
     /**
-     * 8xy0 - LD Vx, Vy
+     * 8xy0 - LD Vx, Vy.
      * Set Vx = Vy.
      * Stores the value of register Vy in register Vx.
      * @param first Register to store value in.
@@ -236,7 +303,7 @@ public class CPU {
     }
 
     /**
-     * 8xy1 - OR Vx, Vy
+     * 8xy1 - OR Vx, Vy.
      * Set Vx = Vx OR Vy.
      * Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
      * @param first First register to OR.
@@ -247,7 +314,7 @@ public class CPU {
     }
 
     /**
-     * 8xy2 - AND Vx, Vy
+     * 8xy2 - AND Vx, Vy.
      * Set Vx = Vx AND Vy.
      * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
      * @param first First register to AND.
@@ -258,7 +325,7 @@ public class CPU {
     }
 
     /**
-     * 8xy3 - XOR Vx, Vy
+     * 8xy3 - XOR Vx, Vy.
      * Set Vx = Vx XOR Vy.
      * Performs a bitwise XOR on the values of Vx and Vy, then stores the result in Vx.
      * @param first First register to XOR.
@@ -269,7 +336,7 @@ public class CPU {
     }
 
     /**
-     * 8xy4 - ADD Vx, Vy
+     * 8xy4 - ADD Vx, Vy.
      * Set Vx = Vx + Vy, set VF = carry.
      * Values of Vx and Vy are added together, If the result is greater than 8 bits (255), VF is set to 1, otherwise 0.
      * Lowest 8 bits of the result are stored in Vx.
@@ -292,14 +359,14 @@ public class CPU {
     }
 
     /**
-     * 8xy5 - SUB Vx, Vy
+     * 8xy5 - SUB Vx, Vy.
      * Set Vx = Vx - Vy, set VF = NOT borrow.
      * Subtract Vy from Vx, store result in Vx. If Vx > Vy, set VF to 1, otherwise 0.
      * @param first Register to subtract from.
      * @param second Register to subtract.
      */
     public void subRegReg(byte first, byte second) {
-        //count the result using a bigger type (short), so we see that a carry occurs
+        //count the result using a bigger type (short), so we are able to see that a carry occurs
         short result = (short) ((registry.VReg[first] & 0xFF) - (registry.VReg[second] & 0xFF));
 
         short vx = (short) (registry.VReg[first] & 0xFF);
@@ -314,6 +381,78 @@ public class CPU {
 
         //store lower byte in register
         registry.VReg[first] = (byte) (result & 0x0FF);
+    }
+
+    /**
+     * 8xy6 - SHR Vx {, Vy}.
+     * Set Vx = Vx SHR 1.
+     * Shift register Vx right. Least significant bit of Vx is stored in VF.
+     * @param reg Register to shift right.
+     */
+    public void shiftRight(byte reg) {
+        //store least significant byte in VF
+        registry.VReg[0xF] = (byte) (registry.VReg[reg] & 0x1);
+
+        //casting register to a bigger type, getting rid of sign with 0xFF
+        short val = (short) (registry.VReg[reg] & 0xFF);
+
+        /// >>> means zero fill right shift
+        registry.VReg[reg] = (byte) (val >>> 1);
+    }
+
+    /**
+     * 8xy7 - SUBN Vx, Vy.
+     * Set Vx = Vy - Vx, set VF = NOT borrow.
+     * Subtract Vx from Vy, store result in Vx. If Vy > Vx, set VF to 1, otherwise 0.
+     * @param first Register to subtract.
+     * @param second Register to subtract from.
+     */
+    public void subNegativeRegReg(byte first, byte second) {
+        //count the result using a bigger type (short), so we are able to see that a carry occurs
+        short result = (short) ((registry.VReg[second] & 0xFF) - (registry.VReg[first] & 0xFF));
+
+        short vx = (short) (registry.VReg[first] & 0xFF);
+        short vy = (short) (registry.VReg[second] & 0xFF);
+
+        //carry stored in VF
+        if (vy > vx) {
+            registry.VReg[0x0F] = 1;
+        } else {
+            registry.VReg[0x0F] = 0;
+        }
+
+        //store lower byte in register
+        registry.VReg[first] = (byte) (result & 0x0FF);
+    }
+
+    /**
+     * 8xyE - SHL Vx {, Vy}.
+     * Set Vx= Vx SHL 1
+     * Shift register Vx left. Most significant bit of Vx is stored in VF.
+     * @param reg Register to shift left.
+     */
+    public void shiftLeft(byte reg) {
+        //store most significant byte in VF
+        registry.VReg[0xF] = (byte) ((registry.VReg[reg] & 0x80) >> 7);
+
+        //casting register to a bigger type, getting rid of sign with 0xFF
+        short val = (short) (registry.VReg[reg] & 0xFF);
+
+        //shifting left
+        registry.VReg[reg] = (byte) (val << 1);
+    }
+
+    /**
+     * 9xy0 - SNE Vx, Vy.
+     * Skip next instruction, if Vx != Vx.
+     * If regs are not equal, increment PC by 2.
+     * @param first First register to compare.
+     * @param second Second register to compare.
+     */
+    public void skipNotEqualRegs(byte first, byte second) {
+        if (registry.VReg[first] != registry.VReg[second]) {
+            registry.PC = (short) (registry.PC + 2);
+        }
     }
 }
 

@@ -1,11 +1,15 @@
 package chip8;
 
+import java.util.Random;
+
 public class CPU {
 
     private Memory memory;
     private Registry registry;
     private Display display;
     private Keyboard keyboard;
+
+    private Random randomGen;
 
     short currentInstr;
 
@@ -14,6 +18,8 @@ public class CPU {
         this.registry = registry;
         this.display = display;
         this.keyboard = keyboard;
+
+        randomGen = new Random();
 
         this.registry.PC = (short) 0x200;
         this.registry.SP = -1;
@@ -118,26 +124,26 @@ public class CPU {
                 skipNotEqualRegs((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
                 break;
 
-//            case 0x0A:
-//                //Annn - set I = nnn
-//                System.out.println(String.format("LD I, %03x", (instr & 0x0FFF)));
-//                break;
-//
-//            case 0x0B:
-//                //Bnnn - Jump to location nnn + V0
-//                System.out.println(String.format("JP V0, %03x", (instr & 0x0FFF)));
-//                break;
-//
-//            case 0x0C:
-//                //Cxkk - Set Vx = random byte AND kk
-//                System.out.println(String.format("RND V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
-//            case 0x0D:
-//                //Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
-//                System.out.println(String.format("DRW V%01x, V%01x, %01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4, (instr & 0x0F)));
-//                break;
-//
+            case 0x0A:
+                //Annn - set I = nnn
+                setIReg((short) (currentInstr & 0x0FFF));
+                break;
+
+            case 0x0B:
+                //Bnnn - Jump to location nnn + V0
+                jumpAddV0((short) (currentInstr & 0x0FFF));
+                break;
+
+            case 0x0C:
+                //Cxkk - Set Vx = random byte AND kk
+                rand((byte) ((currentInstr & 0x0F00) >> 8), (byte) (currentInstr & 0x0FF));
+                break;
+
+            case 0x0D:
+                //Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
+                draw((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4), (byte) (currentInstr & 0x0F));
+                break;
+
 //            case 0x0E:
 //                if ((instr & 0xFF) == 0x9E) {
 //                    //Ex9E - Skip next instruction if key with value of Vx is pressed.
@@ -214,10 +220,10 @@ public class CPU {
     /**
      * 1nnn - JP addr.
      * Sets the program counter to nnn.
-     * @param adress Adress of the jump location.
+     * @param address Adress of the jump location.
      */
-    public void jump(short adress) {
-        registry.PC = adress;
+    public void jump(short address) {
+        registry.PC = address;
     }
 
     /**
@@ -452,6 +458,52 @@ public class CPU {
     public void skipNotEqualRegs(byte first, byte second) {
         if (registry.VReg[first] != registry.VReg[second]) {
             registry.PC = (short) (registry.PC + 2);
+        }
+    }
+
+    /**
+     * Annn - LD I, addr.
+     * The value of register I is set to nnn.
+     * @param value Value to store in register I.
+     */
+    public void setIReg(short value) {
+        registry.IReg = value;
+    }
+
+    /**
+     * Bnnn - JP V0, addr.
+     * Jump to location nnn + V0.
+     * @param address Address of jump destination, without the value of V0.
+     */
+    public void jumpAddV0(short address) {
+        //using 0xFFFF and 0xFF to get rid of the sing
+        registry.PC = (short) ((address & 0xFFFF) + (registry.VReg[0] & 0xFF));
+    }
+
+    /**
+     * Cxkk - RND Vx, byte.
+     * Set Vx = random byte AND kk.
+     * Generates a random number from 0 to 255 which is then ANDed with value kk and then stored in Vx.
+     * @param reg Register to store generated value.
+     * @param value Value to AND random number with.
+     */
+    public void rand(byte reg, byte value) {
+        registry.VReg[reg] = (byte) (randomGen.nextInt(256) & value);
+    }
+
+    /**
+     * Dxyn - DRW Vx, Vy, nibble.
+     * Display n-byte sprite starting at memory location stored in I register at (Vx, Vy), set VF = collision.
+     * @param xReg Number of the register that holds the X position of the sprite to draw.
+     * @param yReg Number of the register that holds the Y position of the sprite to draw.
+     * @param numberOfBytes Number of bytes from the memory to draw, beginning from the address stored in the I register.
+     */
+    public void draw(byte xReg, byte yReg, byte numberOfBytes) {
+        boolean collision = display.drawSprite(registry.VReg[xReg], registry.VReg[yReg], registry.IReg, numberOfBytes);
+        if (collision) {
+            registry.VReg[0xF] = 1;
+        } else {
+            registry.VReg[0xF] = 0;
         }
     }
 }

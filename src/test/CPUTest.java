@@ -342,4 +342,41 @@ public class CPUTest {
 
         assertEquals(0x202, registry.PC); //compared values are not equal, PC incremented by 2
     }
+
+    @Test
+    public void setIRegTest() {
+        cpu.setIReg((short) 0x30A);
+
+        assertEquals((short) 0x30A, registry.IReg);
+    }
+
+    @Test
+    public void jumpAddV0Test() {
+        //setting the value of V0
+        registry.VReg[0] = (byte) 0xA1;
+
+        cpu.jumpAddV0((short) 0x200);
+
+        assertEquals(0x2A1, registry.PC);
+    }
+
+    @Test
+    public void drawTest() throws InterruptedException {
+        //temp
+        display.initDisplay();
+
+        //set registers to draw Sprite "0" at position (2, 2)
+        registry.IReg = Memory.SPRITE_0;
+        registry.VReg[1] = 2;
+        registry.VReg[2] = 2;
+
+        //draw the sprite
+        cpu.draw((byte) 1, (byte) 2, (byte) 5);
+
+        //check whether pixels on screen are equal to the sprite's bytes in memory
+        for (int i = 0; i < 5; i++) {
+            assertEquals(memory.get((short) (Memory.SPRITE_0 + i)), (short) display.getByte(2, 2 + i));
+        }
+    }
+
 }

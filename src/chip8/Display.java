@@ -2,6 +2,7 @@ package chip8;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class Display {
@@ -63,30 +64,65 @@ public class Display {
         frame.setVisible(true);
     }
 
-    //TODO return collisions
-    //TODO XOR-ing
     /**
      * Sets a single pixel on the screen.
      * @param x The X position on the screen.
      * @param y The Y position on the screen.
-     * @param value True to turn on, False to turn off.
+     * @param value True to turn pixel on, otherwise false.
+     * @param sprite True if drawing a sprite.
+     * @return True if collision occurs, otherwise false.
      */
-    public void setPixel(int x, int y, boolean value, boolean sprite) {
+    public boolean setPixel(int x, int y, boolean value, boolean sprite) {
         if (x < 0 || x > 63) {
             System.out.println("Screen X coordinate out of range.");
         } else if (y < 0 || y > 31) {
             System.out.println("Screen Y coordinate out of range.");
         }
+        //drawing sprites or normal pixels
         if (sprite) {
+            //getting the initial value of the pixel
+            boolean prevVal = screen[x % 64][y % 32];
             //XOR-ing the value on the screen
             screen[x % 64][y % 32] = value ^ screen[x % 64][y % 32];
+
+            //returns true if pixel was erased - a collision occurred, otherwise false.
+            return prevVal && !screen[x % 64][y % 32];
         } else {
             screen[x][y] = value;
+            return false;
         }
     }
 
+    /**
+     * Gets a single pixel from the screen.
+     * @param x The x position of the pixel on the screen.
+     * @param y The y position of the pixel on the screen.
+     * @return True if set, otherwise false.
+     */
     public boolean getPixel(int x, int y) {
         return screen[x][y];
+    }
+
+    /**
+     * Gets a byte representing 8 pixels from the screen, beginning from the x and y position.
+     * If x or y is bigger than the screen size, it overlaps to the other side of the screen (returns to the beginning).
+     * @param x The x position of the most significant bit.
+     * @param y The y position of the most significant bit.
+     * @return Byte representing 8 pixels from the screen.
+     */
+    public byte getByte(int x, int y) {
+        byte screenValue = 0;
+        for (int i = 0; i < 8; i++) {
+            boolean isSet = this.getPixel((byte) (x + i) % 64, (byte) y % 32);
+            if (isSet) {
+                screenValue = (byte) (screenValue | 1);
+            }
+            //shift left to make room for the next bit
+            if (i != 7) {
+                screenValue = (byte) (screenValue << 1);
+            }
+        }
+        return screenValue;
     }
 
     /**
@@ -94,14 +130,22 @@ public class Display {
      * @param x The x position on the screen.
      * @param y The y position on the screen.
      * @param adress Adress of the sprite's beginning in the memory.
+     * @param numberOfBytes Number of bytes from the memory to draw, beginning from the address.
+     * @return True if collision occurred, otherwise false.
      */
-    public void drawSprite(int x, int y, int adress) {
-        for (int i = 0; i < 5; i++) {
+    public boolean drawSprite(int x, int y, int adress, int numberOfBytes) {
+        boolean collision = false;
+        //for each of the bytes
+        for (int i = 0; i < numberOfBytes; i++) {
+            //get the byte from the memory
             byte value = memory.get((byte) (adress + i));
+            //for each bit from the byte, draw the value to the screen
             for (int j = 0; j < 8; j++) {
-                this.setPixel(x + (7 - j), y + i, (value & (0x1 << j)) != 0, true);
+                //collision is ORed with the return value of setPixel
+                collision = collision | this.setPixel(x + (7 - j), y + i, (value & (0x1 << j)) != 0, true);
             }
         }
+        return collision;
     }
 
     public boolean[][] getScreen() {

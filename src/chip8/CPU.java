@@ -76,113 +76,45 @@ public class CPU {
                 setRegVal((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x0FF)));
                 break;
 
-//            case 0x07:
-//                //7xkk - Set Vx = Vx + kk
-//                System.out.println(String.format("ADD V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
-//            case 0x08:
-//                if ((instr & 0x0F) == 0x00) {
-//                    //8xy0 - Set Vx = Vy
-//                    System.out.println(String.format("LD V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x01) {
-//                    //8xy1 - Set Vx = Vx or Vy
-//                    System.out.println(String.format("OR V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x02) {
-//                    //8xy2 - Vx = Vx AND Vy
-//                    System.out.println(String.format("AND V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x03) {
-//                    //8xy3 - Set Vx = Vx XOR Vy
-//                    System.out.println(String.format("XOR V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x04) {
-//                    //8xy4 - Set Vx = Vx + Vy, set VF = carry
-//                    System.out.println(String.format("ADD V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x05) {
-//                    //8xy5 - Set Vx = Vx - Vy, set VF = NOT borrow
-//                    System.out.println(String.format("SUB V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x06) {
+            case 0x07:
+                //7xkk - Set Vx = Vx + kk
+                addRegVal((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x0FF)));
+                break;
+
+            case 0x08:
+                if ((currentInstr & 0x0F) == 0x00) {
+                    //8xy0 - Set Vx = Vy
+                    setRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x01) {
+                    //8xy1 - Set Vx = Vx or Vy
+                    orRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x02) {
+                    //8xy2 - Vx = Vx AND Vy
+                    andRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x03) {
+                    //8xy3 - Set Vx = Vx XOR Vy
+                    xorRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x04) {
+                    //8xy4 - Set Vx = Vx + Vy, set VF = carry
+                    addRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                } else if ((currentInstr & 0x0F) == 0x05) {
+                    //8xy5 - Set Vx = Vx - Vy, set VF = NOT borrow
+                    subRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+                }
+//                else if ((currentInstr & 0x0F) == 0x06) {
 //                    //8xy6 - Set Vx = Vx SHR 1, store least significant bit in VF
-//                    System.out.println(String.format("SHR V%01x {, V%01x}", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x07) {
+//                    shiftRight((byte) ((currentInstr & 0x0F00) >> 8));
+//                } else if ((currentInstr & 0x0F) == 0x07) {
 //                    //8xy7 - Set Vx = Vy - Vx, set VF = NOT borrow
-//                    System.out.println(String.format("SUBN V%01x, V%01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else if ((instr & 0x0F) == 0x0E) {
+//                    subNegativeRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
+//                } else if ((currentInstr & 0x0F) == 0x0E) {
 //                    //8xyE - Set Vx = Vx SHL 1, store most significant bit on VF
-//                    System.out.println(String.format("SHL V%01x {, V%01x}", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                } else {
-//                    System.out.println("UNKN 8");
+//                    shiftLeft((byte) ((currentInstr & 0x0F00) >> 8));
 //                }
-//                break;
-//
-//            case 0x09:
-//                //9xy0 - Skip next instruction if Vx != Vy
-//                System.out.println(String.format("SNE V%01x, V%02x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4));
-//                break;
-//
-//            case 0x0A:
-//                //Annn - set I = nnn
-//                System.out.println(String.format("LD I, %03x", (instr & 0x0FFF)));
-//                break;
-//
-//            case 0x0B:
-//                //Bnnn - Jump to location nnn + V0
-//                System.out.println(String.format("JP V0, %03x", (instr & 0x0FFF)));
-//                break;
-//
-//            case 0x0C:
-//                //Cxkk - Set Vx = random byte AND kk
-//                System.out.println(String.format("RND V%01x, %02x", (instr & 0x0F00) >> 8, (instr & 0x00FF)));
-//                break;
-//
-//            case 0x0D:
-//                //Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision
-//                System.out.println(String.format("DRW V%01x, V%01x, %01x", (instr & 0x0F00) >> 8, (instr & 0x00F0) >> 4, (instr & 0x0F)));
-//                break;
-//
-//            case 0x0E:
-//                if ((instr & 0xFF) == 0x9E) {
-//                    //Ex9E - Skip next instruction if key with value of Vx is pressed.
-//                    System.out.println(String.format("SKP V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0xA1) {
-//                    //ExA1 - Skip next instruction if key with the value of Vx is not pressed.
-//                    System.out.println(String.format("SKNP V%01x", (instr & 0x0F00) >> 8));
-//                } else {
-//                    System.out.println("UNKN E");
-//                }
-//                break;
-//
-//            case 0x0F:
-//                if ((instr & 0xFF) == 0x07) {
-//                    //Fx07 - Set Vx = delay timer value.
-//                    System.out.println(String.format("LD V%01x, DT", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x0A) {
-//                    //Fx0A - Wait for a key press, store the value of the key in Vx.
-//                    System.out.println(String.format("LD V%01x, K", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x15) {
-//                    //Fx15 - Set delay timer = Vx
-//                    System.out.println(String.format("LD DT, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x18) {
-//                    //Fx18 - Set sound timer = Vx
-//                    System.out.println(String.format("LD ST, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x1E) {
-//                    //Fx1E - Set I = I + Vx
-//                    System.out.println(String.format("ADD I, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x29) {
-//                    //Fx29 - Set I = location of sprite for digit Vx
-//                    System.out.println(String.format("LD F, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x33) {
-//                    //Fx33 - Store BCD representation of Vx in memory locations I, I+1, I+2
-//                    System.out.println(String.format("LD B, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x55) {
-//                    //Fx55 - Store registers V0 through Vx in memory starting at location I.
-//                    System.out.println(String.format("LD [I], V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x65) {
-//                    //Fx65 - Read registers V0 through Vx from memory starting at location I.
-//                    System.out.println(String.format("LD V%01x, [I]", (instr & 0x0F00) >> 8));
-//                } else {
-//                    System.out.println("UNKN F");
-//                }
-//                break;
+
+                break;
+
+
 
             default:
                 System.out.println();
@@ -280,4 +212,108 @@ public class CPU {
     public void setRegVal(byte reg, byte val) {
         registry.VReg[reg] = val;
     }
+
+    /**
+     * 7xkk - ADD Vx, byte
+     * Set Vx = Vx + kk.
+     * Adds the value kk to the value of register Vx, stores the result in Vx.
+     * @param reg Register to add to.
+     * @param val Value to add.
+     */
+    public void addRegVal(byte reg, byte val) {
+        registry.VReg[reg] = (byte) (registry.VReg[reg] + val);
+    }
+
+    /**
+     * 8xy0 - LD Vx, Vy
+     * Set Vx = Vy.
+     * Stores the value of register Vy in register Vx.
+     * @param first Register to store value in.
+     * @param second Register with the value to store.
+     */
+    public void setRegReg(byte first, byte second) {
+        registry.VReg[first] = registry.VReg[second];
+    }
+
+    /**
+     * 8xy1 - OR Vx, Vy
+     * Set Vx = Vx OR Vy.
+     * Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+     * @param first First register to OR.
+     * @param second Second register to OR.
+     */
+    public void orRegReg(byte first, byte second) {
+        registry.VReg[first] = (byte) (registry.VReg[first] | registry.VReg[second]);
+    }
+
+    /**
+     * 8xy2 - AND Vx, Vy
+     * Set Vx = Vx AND Vy.
+     * Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+     * @param first First register to AND.
+     * @param second Second register to AND.
+     */
+    public void andRegReg(byte first, byte second) {
+        registry.VReg[first] = (byte) (registry.VReg[first] & registry.VReg[second]);
+    }
+
+    /**
+     * 8xy3 - XOR Vx, Vy
+     * Set Vx = Vx XOR Vy.
+     * Performs a bitwise XOR on the values of Vx and Vy, then stores the result in Vx.
+     * @param first First register to XOR.
+     * @param second Second register to XOR.
+     */
+    public void xorRegReg(byte first, byte second) {
+        registry.VReg[first] = (byte) (registry.VReg[first] ^ registry.VReg[second]);
+    }
+
+    /**
+     * 8xy4 - ADD Vx, Vy
+     * Set Vx = Vx + Vy, set VF = carry.
+     * Values of Vx and Vy are added together, If the result is greater than 8 bits (255), VF is set to 1, otherwise 0.
+     * Lowest 8 bits of the result are stored in Vx.
+     * @param first First register to add.
+     * @param second Second register to add.
+     */
+    public void addRegReg(byte first, byte second) {
+        //count the result using a bigger type (short), so we see that a carry occurs
+        short result = (short) ((registry.VReg[first] & 0xFF) + (registry.VReg[second] & 0xFF));
+
+        //carry stored in VF
+        if ((result & 0x0FF00) >> 8 > 0) {
+            registry.VReg[0x0F] = 1;
+        } else {
+            registry.VReg[0x0F] = 0;
+        }
+
+        //store lower byte in register
+        registry.VReg[first] = (byte) (result & 0x0FF);
+    }
+
+    /**
+     * 8xy5 - SUB Vx, Vy
+     * Set Vx = Vx - Vy, set VF = NOT borrow.
+     * Subtract Vy from Vx, store result in Vx. If Vx > Vy, set VF to 1, otherwise 0.
+     * @param first Register to subtract from.
+     * @param second Register to subtract.
+     */
+    public void subRegReg(byte first, byte second) {
+        //count the result using a bigger type (short), so we see that a carry occurs
+        short result = (short) ((registry.VReg[first] & 0xFF) - (registry.VReg[second] & 0xFF));
+
+        short vx = (short) (registry.VReg[first] & 0xFF);
+        short vy = (short) (registry.VReg[second] & 0xFF);
+
+        //carry stored in VF
+        if (vx > vy) {
+            registry.VReg[0x0F] = 1;
+        } else {
+            registry.VReg[0x0F] = 0;
+        }
+
+        //store lower byte in register
+        registry.VReg[first] = (byte) (result & 0x0FF);
+    }
 }
+

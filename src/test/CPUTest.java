@@ -143,4 +143,117 @@ public class CPUTest {
 
         assertEquals((byte) 0xA0, registry.VReg[2]);
     }
+
+    @Test
+    public void addRegValTest() {
+        registry.VReg[4] = (byte) 0x03;
+
+        cpu.addRegVal((byte) 4, (byte) 4);
+
+        assertEquals((byte) 7, registry.VReg[4]); //value added to the register
+    }
+
+    @Test
+    public void setRegRegTest() {
+        registry.VReg[4] = (byte) 0x03;
+        registry.VReg[5] = (byte) 0x05;
+
+        cpu.setRegReg((byte) 4, (byte) 5);
+
+        assertEquals((byte) 0x05, registry.VReg[5]); //set registers are equal
+        assertEquals(registry.VReg[4], registry.VReg[5]);
+    }
+
+    @Test
+    public void orRegRegTest() {
+        //0x3C or 0x0C = 0x3C
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0C;
+
+        //0xA0 or 0x0A = 0xAA
+        registry.VReg[3] = (byte) 0xA0;
+        registry.VReg[4] = (byte) 0x0A;
+
+        cpu.orRegReg((byte) 1, (byte) 2);
+        cpu.orRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0x3C, registry.VReg[1]);
+        assertEquals((byte) 0xAA, registry.VReg[3]);
+    }
+
+    @Test
+    public void andRegRegTest() {
+        //0x3C AND 0x0C = 0x0C
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0C;
+
+        //0xA0 AND 0x0A = 0x00
+        registry.VReg[3] = (byte) 0xA0;
+        registry.VReg[4] = (byte) 0x0A;
+
+        cpu.andRegReg((byte) 1, (byte) 2);
+        cpu.andRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0x0C, registry.VReg[1]);
+        assertEquals((byte) 0x00, registry.VReg[3]);
+    }
+
+    @Test
+    public void xorRegRegTest() {
+        //0x3C XOR 0x0D = 0x31
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0D;
+
+        //0xA0 XOR 0x0A = 0xAA
+        registry.VReg[3] = (byte) 0xA0;
+        registry.VReg[4] = (byte) 0x0A;
+
+        cpu.xorRegReg((byte) 1, (byte) 2);
+        cpu.xorRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0x31, registry.VReg[1]);
+        assertEquals((byte) 0xAA, registry.VReg[3]);
+    }
+
+    @Test
+    public void addRegRegTest() {
+        //0x3C + 0x0D = 0x49, carry = 0
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0D;
+
+        cpu.addRegReg((byte) 1, (byte) 2);
+
+        assertEquals((byte) 0x49, registry.VReg[1]);
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //0xFF + 0xFF = 0x1FE -> lower byte -> 0xFE, carry = 1
+        registry.VReg[3] = (byte) 0x0FF;
+        registry.VReg[4] = (byte) 0x0FF;
+
+        cpu.addRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0xFE, registry.VReg[3]);
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
+    }
+
+    @Test
+    public void subRegRegTest() {
+        //0x3C - 0x0D = 0x2F, carry = 1
+        registry.VReg[1] = (byte) 0x3C;
+        registry.VReg[2] = (byte) 0x0D;
+
+        cpu.subRegReg((byte) 1, (byte) 2);
+
+        assertEquals((byte) 0x2F, registry.VReg[1]);
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
+
+        //0x01 - 0x0D = 0xF4, carry = 0 (sub with borrow 0x101 - 0x0D = 0xF4)
+        registry.VReg[3] = (byte) 0x01;
+        registry.VReg[4] = (byte) 0x0D;
+
+        cpu.subRegReg((byte) 3, (byte) 4);
+
+        assertEquals((byte) 0xF4, registry.VReg[3]);
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+    }
 }

@@ -73,11 +73,11 @@ public class Display {
      * @return True if collision occurs, otherwise false.
      */
     public boolean setPixel(int x, int y, boolean value, boolean sprite) {
-        if (x < 0 || x > 63) {
-            System.out.println("Screen X coordinate out of range.");
-        } else if (y < 0 || y > 31) {
-            System.out.println("Screen Y coordinate out of range.");
-        }
+//        if (x < 0 || x > 63) {
+//            System.out.println("Screen X coordinate out of range.");
+//        } else if (y < 0 || y > 31) {
+//            System.out.println("Screen Y coordinate out of range.");
+//        }
         //drawing sprites or normal pixels
         if (sprite) {
             //getting the initial value of the pixel
@@ -129,16 +129,16 @@ public class Display {
      * Draws a sprite on the screen at x and y position, from the memory adress.
      * @param x The x position on the screen.
      * @param y The y position on the screen.
-     * @param adress Adress of the sprite's beginning in the memory.
+     * @param address Adress of the sprite's beginning in the memory.
      * @param numberOfBytes Number of bytes from the memory to draw, beginning from the address.
      * @return True if collision occurred, otherwise false.
      */
-    public boolean drawSprite(int x, int y, int adress, int numberOfBytes) {
+    public boolean drawSprite(int x, int y, int address, int numberOfBytes) {
         boolean collision = false;
         //for each of the bytes
         for (int i = 0; i < numberOfBytes; i++) {
             //get the byte from the memory
-            byte value = memory.get((byte) (adress + i));
+            byte value = memory.get((short) (address + i));
             //for each bit from the byte, draw the value to the screen
             for (int j = 0; j < 8; j++) {
                 //collision is ORed with the return value of setPixel

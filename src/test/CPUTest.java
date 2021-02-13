@@ -361,13 +361,11 @@ public class CPUTest {
     }
 
     @Test
-    public void drawTest() throws InterruptedException {
-        //temp
-        display.initDisplay();
-
-        //set registers to draw Sprite "0" at position (2, 2)
+    public void drawTest() {
+        //normal drawing
+        //set registers to draw Sprite "0" at position (20, 2)
         registry.IReg = Memory.SPRITE_0;
-        registry.VReg[1] = 2;
+        registry.VReg[1] = 20;
         registry.VReg[2] = 2;
 
         //draw the sprite
@@ -375,8 +373,105 @@ public class CPUTest {
 
         //check whether pixels on screen are equal to the sprite's bytes in memory
         for (int i = 0; i < 5; i++) {
-            assertEquals(memory.get((short) (Memory.SPRITE_0 + i)), (short) display.getByte(2, 2 + i));
+            assertEquals(memory.get((short) (Memory.SPRITE_0 + i)), (short) display.getByte(20, 2 + i));
         }
+        //VF = 1 - no collision
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //horizontal overlapping
+        //set registers to draw Sprite "4" at position (62, 8)
+        registry.IReg = Memory.SPRITE_4;
+        registry.VReg[1] = 62;
+        registry.VReg[2] = 8;
+
+        //draw the sprite
+        cpu.draw((byte) 1, (byte) 2, (byte) 5);
+
+        //check whether pixels on screen are equal to the sprite's bytes in memory
+        for (int i = 0; i < 5; i++) {
+            assertEquals(memory.get((short) (Memory.SPRITE_4 + i)), (short) display.getByte(62, 8 + i));
+        }
+        //VF = 1 - no collision
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //vertical overlapping
+        //set registers to draw Sprite "A" at position (63, 30)
+        registry.IReg = Memory.SPRITE_A;
+        registry.VReg[1] = 62;
+        registry.VReg[2] = 30;
+
+        //draw the sprite
+        cpu.draw((byte) 1, (byte) 2, (byte) 5);
+
+        //check whether pixels on screen are equal to the sprite's bytes in memory
+        for (int i = 0; i < 5; i++) {
+            assertEquals(memory.get((short) (Memory.SPRITE_A + i)), (short) display.getByte(62, 30 + i));
+        }
+        //VF = 1 - no collision
+        assertEquals((byte) 0x0, registry.VReg[0xF]);
+
+        //sprite XORing
+        //set registers to draw Sprite "0" at position (20, 2)
+        registry.IReg = Memory.SPRITE_0;
+        registry.VReg[1] = 21;
+        registry.VReg[2] = 2;
+
+        memory.set((short) 0x200, (byte) 0x88);
+        memory.set((short) 0x201, (byte) 0xD8);
+        memory.set((short) 0x202, (byte) 0xD8);
+        memory.set((short) 0x203, (byte) 0xD8);
+        memory.set((short) 0x204, (byte) 0x88);
+
+        //draw the sprite
+        cpu.draw((byte) 1, (byte) 2, (byte) 5);
+
+        //check whether pixels on screen are equal to the sprite's bytes in memory
+        for (int i = 0; i < 5; i++) {
+            assertEquals(memory.get((short) (0x200 + i)), (short) display.getByte(20, 2 + i));
+        }
+        //VF = 1 - collision occurred
+        assertEquals((byte) 0x1, registry.VReg[0xF]);
     }
 
+    @Test
+    public void skipKeyPressedTest() {
+        //setting registers and the key as pressed.
+        registry.PC = 0x200;
+        registry.VReg[2] = 0xA;
+        keyboard.setKey(0xA, true, true);
+
+        cpu.skipKeyPressed((byte) 0x2);
+
+        assertEquals(0x202, registry.PC); //key pressed, PC incremented by 2
+
+        //setting registers and the key as pressed.
+        registry.PC = 0x200;
+        registry.VReg[2] = 0xA;
+        keyboard.setKey(0xA, false, true);
+
+        cpu.skipKeyPressed((byte) 0x2);
+
+        assertEquals(0x200, registry.PC); //key released, PC stays the same
+    }
+
+    @Test
+    public void skipKeyNotPressedTest() {
+        //setting registers and the key as pressed.
+        registry.PC = 0x200;
+        registry.VReg[2] = 0xA;
+        keyboard.setKey(0xA, false, true);
+
+        cpu.skipKeyNotPressed((byte) 0x2);
+
+        assertEquals(0x202, registry.PC); //key released, PC incremented by 2
+
+        //setting registers and the key as pressed.
+        registry.PC = 0x200;
+        registry.VReg[2] = 0xA;
+        keyboard.setKey(0xA, true, true);
+
+        cpu.skipKeyNotPressed((byte) 0x2);
+
+        assertEquals(0x200, registry.PC); //key pressed, PC stays the same
+    }
 }

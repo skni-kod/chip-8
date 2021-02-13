@@ -18,7 +18,7 @@ public class Chip8 {
 
         int size;
         try {
-            size = memory.loadFile("Fishie.ch8");
+            size = memory.loadFile("./c8games/roms/programs/IBM Logo.ch8");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -144,18 +144,17 @@ public class CPU {
                 draw((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4), (byte) (currentInstr & 0x0F));
                 break;
 
-//            case 0x0E:
-//                if ((instr & 0xFF) == 0x9E) {
-//                    //Ex9E - Skip next instruction if key with value of Vx is pressed.
-//                    System.out.println(String.format("SKP V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0xA1) {
-//                    //ExA1 - Skip next instruction if key with the value of Vx is not pressed.
-//                    System.out.println(String.format("SKNP V%01x", (instr & 0x0F00) >> 8));
-//                } else {
-//                    System.out.println("UNKN E");
-//                }
-//                break;
-//
+            case 0x0E:
+                if ((currentInstr & 0xFF) == 0x9E) {
+                    //Ex9E - Skip next instruction if key with value of Vx is pressed.
+                    skipKeyPressed((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0xA1) {
+                    //ExA1 - Skip next instruction if key with the value of Vx is not pressed.
+                    skipKeyNotPressed((byte) ((currentInstr & 0x0F00) >> 8));
+                }
+
+                break;
+
 //            case 0x0F:
 //                if ((instr & 0xFF) == 0x07) {
 //                    //Fx07 - Set Vx = delay timer value.
@@ -504,6 +503,28 @@ public class CPU {
             registry.VReg[0xF] = 1;
         } else {
             registry.VReg[0xF] = 0;
+        }
+    }
+
+    /**
+     * Ex9E - SKP Vx
+     * Skip next instruction, if key with value of Vx is pressed.
+     * @param reg Register that holds the value of the key.
+     */
+    public void skipKeyPressed(byte reg) {
+        if (keyboard.getKey(registry.VReg[reg])) {
+            registry.PC = (short) (registry.PC + 2);
+        }
+    }
+
+    /**
+     * ExA1 - SKNP Vx
+     * Skip next instruction, if key with value of Vx is not pressed.
+     * @param reg Register that holds the value of the key.
+     */
+    public void skipKeyNotPressed(byte reg) {
+        if (!keyboard.getKey(registry.VReg[reg])) {
+            registry.PC = (short) (registry.PC + 2);
         }
     }
 }

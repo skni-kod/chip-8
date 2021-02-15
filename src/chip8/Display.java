@@ -79,6 +79,8 @@ public class Display {
 //            System.out.println("Screen Y coordinate out of range.");
 //        }
         //drawing sprites or normal pixels
+        //when drawing sprites, pixels are XORed on the screen
+        //when not drawing a sprite, pixels are just set to the value
         if (sprite) {
             //getting the initial value of the pixel
             boolean prevVal = screen[x % 64][y % 32];

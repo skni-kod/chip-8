@@ -7,6 +7,9 @@ public class Keyboard implements KeyListener {
 
     private boolean[] pressedKeys = new boolean[16];
 
+    public int currentlyPressedCount = 0;
+    public int lastUsed = 0;
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -14,214 +17,129 @@ public class Keyboard implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("Key pressed:" + e.toString());
-        setKey(e.getKeyCode(), true, false);
+
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        System.out.println("Key released:" + e.toString());
-        setKey(e.getKeyCode(), false, false);
+
     }
 
     /**
-     * Sets a single key as pressed or released, depending on the value.
-     * Default mapping or hex mapping can be used.
-     * @param keyCode Value representing the key. If useHex is false, use default java KeyEvent keycodes.
-     *                If useHex is true, use hex values from 0x0 to 0xF (default chip-8 keyboard).
-     * @param value True to set key as pressed, false to set key as released.
-     * @param useHex True if keyCode is passed as a hex value, false if keyCode is passed as a KeyEvent keycode.
-     * @return
+     * Sets a single key's value - pressed or released. If useJavaKeyCodes is true,
+     * uses Java KeyEvent's keycodes, otherwise uses chip 8's key values from 0 to F.
+     * @param keyCode KeyCode representing a single key.
+     * @param value True to set key as pressed, False to set key as released.
+     * @param useJavaKeyCodes If true, method uses mapped Java KeyEvent's keycodes, otherwise uses chip 8's key values
+     *                        from 0 to F.
+     * @return True, if key value was set, otherwise false.
      */
-    public boolean setKey(int keyCode, boolean value, boolean useHex) {
-
-        if (useHex) {
-            switch (keyCode) {
-                case 0x0:
-                    pressedKeys[0xD] = value;
-
-                case 0x1:
-                    pressedKeys[0x0] = value;
-
-                case 0x2:
-                    pressedKeys[0x1] = value;
-
-                case 0x3:
-                    pressedKeys[0x2] = value;
-
-                case 0x4:
-                    pressedKeys[0x4] = value;
-
-                case 0x5:
-                    pressedKeys[0x5] = value;
-
-                case 0x6:
-                    pressedKeys[0x6] = value;
-
-                case 0x7:
-                    pressedKeys[0x8] = value;
-
-                case 0x8:
-                    pressedKeys[0x9] = value;
-
-                case 0x9:
-                    pressedKeys[0xA] = value;
-
-                case 0xA:
-                    pressedKeys[0xC] = value;
-
-                case 0xB:
-                    pressedKeys[0xE] = value;
-
-                case 0xC:
-                    pressedKeys[0x3] = value;
-
-                case 0xD:
-                    pressedKeys[0x7] = value;
-
-                case 0xE:
-                    pressedKeys[0xB] = value;
-
-                case 0xF:
-                    pressedKeys[0xF] = value;
-
-                default:
-                    return false;
-            }
-        } else {
-            switch (keyCode) {
-
-                case KeyEvent.VK_1:
-                    pressedKeys[0] = value;
-                    break;
-
-                case KeyEvent.VK_2:
-                    pressedKeys[1] = value;
-                    break;
-
-                case KeyEvent.VK_3:
-                    pressedKeys[2] = value;
-                    break;
-
-                case KeyEvent.VK_4:
-                    pressedKeys[3] = value;
-                    break;
-
-                case KeyEvent.VK_Q:
-                    pressedKeys[4] = value;
-                    break;
-
-                case KeyEvent.VK_W:
-                    pressedKeys[5] = value;
-                    break;
-
-                case KeyEvent.VK_E:
-                    pressedKeys[6] = value;
-                    break;
-
-                case KeyEvent.VK_R:
-                    pressedKeys[7] = value;
-                    break;
-
-                case KeyEvent.VK_A:
-                    pressedKeys[8] = value;
-                    break;
-
-                case KeyEvent.VK_S:
-                    pressedKeys[9] = value;
-                    break;
-
-                case KeyEvent.VK_D:
-                    pressedKeys[10] = value;
-                    break;
-
-                case KeyEvent.VK_F:
-                    pressedKeys[11] = value;
-                    break;
-
-                case KeyEvent.VK_Z:
-                    pressedKeys[12] = value;
-                    break;
-
-                case KeyEvent.VK_X:
-                    pressedKeys[13] = value;
-                    break;
-
-                case KeyEvent.VK_C:
-                    pressedKeys[14] = value;
-                    break;
-
-                case KeyEvent.VK_V:
-                    pressedKeys[15] = value;
-                    break;
-
-                default:
-                    return false;
-            }
+    public boolean setKey(int keyCode, boolean value, boolean useJavaKeyCodes) {
+        if (useJavaKeyCodes) {
+            keyCode = getProperKeyCode(keyCode);
         }
 
-        return true;
+        if (keyCode >= 0x0 && keyCode <= 0xF) {
+            boolean prev = pressedKeys[keyCode];
+            pressedKeys[keyCode] = value;
+
+            if (prev != pressedKeys[keyCode]) {
+                if (value) {
+                    currentlyPressedCount++;
+                } else {
+                    currentlyPressedCount--;
+                }
+            }
+            //TODO may be buggy
+            lastUsed = keyCode;
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
-     * Returns whether the key with a certain value is pressed or not.
-     * @param value Value of the key.
-     * @return True if pressed, otherwise false.
+     * Returns a value of a single key.
+     * @param keyCode Keycode of the key (from 0x0 to 0xF).
+     * @return True if key is pressed, False if key is released.
      */
-    public boolean getKey(int value) {
-        switch (value) {
-            case 0x0:
-                return pressedKeys[0xD];
+    public boolean getKey(int keyCode) {
+        return pressedKeys[keyCode];
+    }
 
-            case 0x1:
-                return pressedKeys[0x0];
+    /**
+     * Given a mapped Java KeyEvent keycode, returns a proper keycode (from 0x0 to 0xF).
+     * @param keyCode Java KeyEvent keycode.
+     * @return Proper keycode from 0x0 to 0xF if key is properly mapped, otherwise -1.
+     */
+    private int getProperKeyCode(int keyCode) {
+        switch (keyCode) {
 
-            case 0x2:
-                return pressedKeys[0x1];
+            case KeyEvent.VK_1:
+                return 0x1;
 
-            case 0x3:
-                return pressedKeys[0x2];
+            case KeyEvent.VK_2:
+                return 0x2;
 
-            case 0x4:
-                return pressedKeys[0x4];
+            case KeyEvent.VK_3:
+                return 0x3;
 
-            case 0x5:
-                return pressedKeys[0x5];
+            case KeyEvent.VK_4:
+                return 0xC;
 
-            case 0x6:
-                return pressedKeys[0x6];
+            case KeyEvent.VK_Q:
+                return 0x4;
 
-            case 0x7:
-                return pressedKeys[0x8];
+            case KeyEvent.VK_W:
+                return 0x5;
 
-            case 0x8:
-                return pressedKeys[0x9];
+            case KeyEvent.VK_E:
+                return 0x6;
 
-            case 0x9:
-                return pressedKeys[0xA];
+            case KeyEvent.VK_R:
+                return 0xD;
 
-            case 0xA:
-                return pressedKeys[0xC];
+            case KeyEvent.VK_A:
+                return 0x7;
 
-            case 0xB:
-                return pressedKeys[0xE];
+            case KeyEvent.VK_S:
+                return 0x8;
 
-            case 0xC:
-                return pressedKeys[0x3];
+            case KeyEvent.VK_D:
+                return 0x9;
 
-            case 0xD:
-                return pressedKeys[0x7];
+            case KeyEvent.VK_F:
+                return 0xE;
 
-            case 0xE:
-                return pressedKeys[0xB];
+            case KeyEvent.VK_Z:
+                return 0xA;
 
-            case 0xF:
-                return pressedKeys[0xF];
+            case KeyEvent.VK_X:
+                return 0x0;
+
+            case KeyEvent.VK_C:
+                return 0xB;
+
+            case KeyEvent.VK_V:
+                return 0xF;
 
             default:
-                return false;
+                return -1;
         }
     }
 
+    public int waitForKey() {
+        try {
+            while (currentlyPressedCount == 0) {
+                Thread.sleep(0);
+            }
+            return lastUsed;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
 }
 

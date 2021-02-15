@@ -438,7 +438,7 @@ public class CPUTest {
         //setting registers and the key as pressed.
         registry.PC = 0x200;
         registry.VReg[2] = 0xA;
-        keyboard.setKey(0xA, true, true);
+        keyboard.setKey(0xA, true, false);
 
         cpu.skipKeyPressed((byte) 0x2);
 
@@ -447,7 +447,7 @@ public class CPUTest {
         //setting registers and the key as pressed.
         registry.PC = 0x200;
         registry.VReg[2] = 0xA;
-        keyboard.setKey(0xA, false, true);
+        keyboard.setKey(0xA, false, false);
 
         cpu.skipKeyPressed((byte) 0x2);
 
@@ -459,7 +459,7 @@ public class CPUTest {
         //setting registers and the key as pressed.
         registry.PC = 0x200;
         registry.VReg[2] = 0xA;
-        keyboard.setKey(0xA, false, true);
+        keyboard.setKey(0xA, false, false);
 
         cpu.skipKeyNotPressed((byte) 0x2);
 
@@ -468,7 +468,7 @@ public class CPUTest {
         //setting registers and the key as pressed.
         registry.PC = 0x200;
         registry.VReg[2] = 0xA;
-        keyboard.setKey(0xA, true, true);
+        keyboard.setKey(0xA, true, false);
 
         cpu.skipKeyNotPressed((byte) 0x2);
 

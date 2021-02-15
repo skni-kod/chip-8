@@ -474,4 +474,57 @@ public class CPUTest {
 
         assertEquals(0x200, registry.PC); //key pressed, PC stays the same
     }
+
+    @Test
+    public void setRegDTTest() {
+        registry.DT = 0x5A;
+
+        cpu.setRegDT((byte) 0x3);
+
+        assertEquals((byte) 0x5A, registry.VReg[0x3]); //register 0x3 was set the value of the DT reg
+    }
+
+    @Test
+    public void waitKeySetRegTest() {
+        //pressing the key
+        keyboard.setKey(0xF, true, false);
+
+        cpu.waitKeySetReg((byte) 0x2);
+
+        //releasing the key
+        keyboard.setKey(0xF, false, false);
+
+        //value of the key saved in register 0x2
+        assertEquals((byte) 0xF, registry.VReg[0x2]);
+    }
+
+    @Test
+    public void setDTRegTest() {
+        registry.VReg[0x8] = 0x5A;
+
+        cpu.setDTReg((byte) 0x8);
+
+        assertEquals(0x5A, registry.VReg[0x8]);
+    }
+
+    @Test
+    public void setSTRegTest() {
+        registry.VReg[0xA] = (byte) 0x9F;
+
+        cpu.setSTReg((byte) 0xA);
+
+        assertEquals((byte) 0x9F, registry.ST);
+    }
+
+    @Test
+    public void setISpriteAddrRegTest() {
+        for (int i = 0x0; i < 0xF; i++) {
+            registry.VReg[0x3] = (byte) i;
+
+            cpu.setISpriteAddrReg((byte) 0x3);
+
+            assertEquals((byte) (i * 5), registry.IReg);
+        }
+
+    }
 }

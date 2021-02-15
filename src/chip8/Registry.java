@@ -15,12 +15,12 @@ public class Registry {
     /**
      * A registry for delay timer.
      */
-    public byte delayTimerReg;
+    public byte DT;
 
     /**
      * A registry for sound timer.
      */
-    public byte soundTimerReg;
+    public byte ST;
 
     /**
      * Program counter registry.

@@ -155,38 +155,38 @@ public class CPU {
 
                 break;
 
-//            case 0x0F:
-//                if ((instr & 0xFF) == 0x07) {
-//                    //Fx07 - Set Vx = delay timer value.
-//                    System.out.println(String.format("LD V%01x, DT", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x0A) {
-//                    //Fx0A - Wait for a key press, store the value of the key in Vx.
-//                    System.out.println(String.format("LD V%01x, K", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x15) {
-//                    //Fx15 - Set delay timer = Vx
-//                    System.out.println(String.format("LD DT, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x18) {
-//                    //Fx18 - Set sound timer = Vx
-//                    System.out.println(String.format("LD ST, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x1E) {
-//                    //Fx1E - Set I = I + Vx
-//                    System.out.println(String.format("ADD I, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x29) {
-//                    //Fx29 - Set I = location of sprite for digit Vx
-//                    System.out.println(String.format("LD F, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x33) {
-//                    //Fx33 - Store BCD representation of Vx in memory locations I, I+1, I+2
-//                    System.out.println(String.format("LD B, V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x55) {
-//                    //Fx55 - Store registers V0 through Vx in memory starting at location I.
-//                    System.out.println(String.format("LD [I], V%01x", (instr & 0x0F00) >> 8));
-//                } else if ((instr & 0xFF) == 0x65) {
+            case 0x0F:
+                if ((currentInstr & 0xFF) == 0x07) {
+                    //Fx07 - Set Vx = delay timer value.
+                    setRegDT((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x0A) {
+                    //Fx0A - Wait for a key press, store the value of the key in Vx.
+                    waitKeySetReg((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x15) {
+                    //Fx15 - Set delay timer = Vx
+                    setDTReg((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x18) {
+                    //Fx18 - Set sound timer = Vx
+                    setSTReg((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x1E) {
+                    //Fx1E - Set I = I + Vx
+                    setIRegSum((byte)  ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x29) {
+                    //Fx29 - Set I = location of sprite for digit Vx
+                    setISpriteAddrReg((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x33) {
+                    //Fx33 - Store BCD representation of Vx in memory locations I, I+1, I+2
+                    setBCDRegI((byte) ((currentInstr & 0x0F00) >> 8));
+                }
+//                else if ((currentInstr & 0xFF) == 0x55) {
+//                    //Fx55 - Store registers V0 through Vx(including) in memory starting at location I.
+//                    storeRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
+//                } else if ((currentInstr & 0xFF) == 0x65) {
 //                    //Fx65 - Read registers V0 through Vx from memory starting at location I.
-//                    System.out.println(String.format("LD V%01x, [I]", (instr & 0x0F00) >> 8));
-//                } else {
-//                    System.out.println("UNKN F");
+//                    loadRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
 //                }
-//                break;
+
+                break;
 
             default:
                 System.out.println();
@@ -526,6 +526,145 @@ public class CPU {
         if (!keyboard.getKey(registry.VReg[reg])) {
             registry.PC = (short) (registry.PC + 2);
         }
+    }
+
+    /**
+     * Fx07 - LD Vx, DT
+     * Set Vx = delay timer value.
+     * @param reg Register to set.
+     */
+    public void setRegDT(byte reg) {
+        registry.VReg[reg] = registry.DT;
+    }
+
+    /**
+     * Fx0A - LD Vx, K
+     * Wait for a key press, store the value of the key in Vx.
+     * @param reg Register to store the value in.
+     */
+    public void waitKeySetReg(byte reg) {
+        registry.VReg[reg] = (byte) keyboard.waitForKey();
+    }
+
+    /**
+     * Fx15 - LD DT, Vx
+     * Set delay timer = Vx.
+     * @param reg Register with the value to set DT to.
+     */
+    public void setDTReg(byte reg) {
+        registry.DT = registry.VReg[reg];
+    }
+
+    /**
+     * Fx18 - LD ST, Vx
+     * Set sound timer = Vx.
+     * @param reg Register with the value.
+     */
+    public void setSTReg(byte reg) {
+        registry.ST = registry.VReg[reg];
+    }
+
+    /**
+     * Fx1E - Add I, Vx
+     * Set I = I + Vx.
+     * @param reg Register to add to I.
+     */
+    public void setIRegSum(byte reg) {
+        registry.IReg = (byte) (registry.IReg + registry.VReg[reg]);
+    }
+
+    /**
+     * Fx29 - LD F, Vx
+     * Set I = location of spite for digit stored in Vx.
+     * @param reg Register that holds the hex digit which sprite's address to store in I.
+     */
+    public void setISpriteAddrReg(byte reg) {
+
+        switch (registry.VReg[reg]) {
+
+            case 0x0:
+                registry.IReg = Memory.SPRITE_0;
+                break;
+
+            case 0x1:
+                registry.IReg = Memory.SPRITE_1;
+                break;
+
+            case 0x2:
+                registry.IReg = Memory.SPRITE_2;
+                break;
+
+            case 0x3:
+                registry.IReg = Memory.SPRITE_3;
+                break;
+
+            case 0x4:
+                registry.IReg = Memory.SPRITE_4;
+                break;
+
+            case 0x5:
+                registry.IReg = Memory.SPRITE_5;
+                break;
+
+            case 0x6:
+                registry.IReg = Memory.SPRITE_6;
+                break;
+
+            case 0x7:
+                registry.IReg = Memory.SPRITE_7;
+                break;
+
+            case 0x8:
+                registry.IReg = Memory.SPRITE_8;
+                break;
+
+            case 0x9:
+                registry.IReg = Memory.SPRITE_9;
+                break;
+
+            case 0xA:
+                registry.IReg = Memory.SPRITE_A;
+                break;
+
+            case 0xB:
+                registry.IReg = Memory.SPRITE_B;
+                break;
+
+            case 0xC:
+                registry.IReg = Memory.SPRITE_C;
+                break;
+
+            case 0xD:
+                registry.IReg = Memory.SPRITE_D;
+                break;
+
+            case 0xE:
+                registry.IReg = Memory.SPRITE_E;
+                break;
+
+            case 0xF:
+                registry.IReg = Memory.SPRITE_F;
+                break;
+
+        }
+    }
+
+    /**
+     * Fx33 - LD B, Vx
+     * Store BCD representation of Vx in memory locations I, I+1, I+2.
+     * Hundreds digit stored in memory at location I, tens digit at I+1 and ones digit at I + 2.
+     */
+    public void setBCDRegI(byte reg) {
+        //calculate BCD representation of the number
+        byte value = registry.VReg[reg];
+        byte ones = (byte) (value % 10);
+        byte tens = (byte) ((value - ones) % 100);
+        byte hundreds = (byte) ((value - ones - tens) % 1000);
+
+        //set the memory using the I register
+        memory.set(registry.IReg, hundreds);
+        memory.set((short) (registry.IReg + 1), tens);
+        memory.set((short) (registry.IReg + 2), ones);
     }
 }
 

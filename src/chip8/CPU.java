@@ -41,6 +41,8 @@ public class CPU {
     void decodeAndExecute() {
         byte firstNib = (byte) ((currentInstr >> 12) & 0xF);
 
+        System.out.println(String.format("Instruction:%04X", currentInstr));
+
         switch (firstNib) {
             case 0x00:
                 if ((currentInstr & 0xFFFF) == 0x00E0) {
@@ -533,7 +535,7 @@ public class CPU {
      * @param reg Register to set.
      */
     public void setRegDT(byte reg) {
-        registry.VReg[reg] = registry.DT;
+        registry.VReg[reg] = (byte) registry.DT;
     }
 
     /**
@@ -551,7 +553,7 @@ public class CPU {
      * @param reg Register with the value to set DT to.
      */
     public void setDTReg(byte reg) {
-        registry.DT = registry.VReg[reg];
+        registry.DT = (byte) registry.VReg[reg];
     }
 
     /**
@@ -569,7 +571,7 @@ public class CPU {
      * @param reg Register to add to I.
      */
     public void setIRegSum(byte reg) {
-        registry.IReg = (byte) (registry.IReg + registry.VReg[reg]);
+        registry.IReg = (short) (registry.IReg + registry.VReg[reg]);
     }
 
     /**
@@ -671,11 +673,11 @@ public class CPU {
     /**
      * Fx55 - LD [I], Vx
      * Store register from V0 to Vx (included) in memory, starting at location stored in I.
-     * @param reg Register that holds the index of the last register included.
+     * @param reg Index of the last register included.
      */
     public void storeRegsAtI(byte reg) {
         //copying the values of registry to the memory, starting at I
-        for (int i = 0; i <= registry.VReg[reg]; i++) {
+        for (int i = 0; i <= reg; i++) {
             memory.set((short) (registry.IReg + i), registry.VReg[i]);
         }
     }
@@ -683,12 +685,11 @@ public class CPU {
     /**
      * Fx65 - LD Vx, [I]
      * Read registers from V0 to Vx (included) from memory, starting at location stored in I.
-     * @param reg Register that holds the index of th elast register included.
+     * @param reg Index of the last register included.
      */
     public void loadRegsAtI(byte reg) {
         //loading the values from the memory to the registry, starting at I
-        byte range = registry.VReg[reg];
-        for (byte i = 0; i <= range; i++) {
+        for (byte i = 0; i <= reg; i++) {
             registry.VReg[i] = memory.get((short) (registry.IReg + i));
         }
     }

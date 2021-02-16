@@ -9,7 +9,7 @@ public class Chip8 {
     private Keyboard keyboard;
 
 
-    public Chip8() {
+    public Chip8(String filename) {
         memory = new Memory();
         keyboard = new Keyboard();
         registry = new Registry();
@@ -18,7 +18,7 @@ public class Chip8 {
 
         int size;
         try {
-            size = memory.loadFile("./c8games/TANK");
+            size = memory.loadFile(filename);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,13 +28,47 @@ public class Chip8 {
 
     public void loop() {
 
+        final int TIMER_TICK = 1000 / 60;
+        final int CPU_FREQ = 500;
+        final int CPU_TICK = 1000 / CPU_FREQ;
+
+        double nextTimerTick = System.currentTimeMillis();
+        double nextCPUTick = System.currentTimeMillis();
+        int loops = 0;
+
         while (true) {
 
-            cpu.fetch();
+//            if (registry.PC % 2 != 0) {
+//                System.out.println("PC OUT OF ORDER");
+//            }
 
-            cpu.incrementPC();
+            if (System.currentTimeMillis() > nextCPUTick) {
 
-            cpu.decodeAndExecute();
+                cpu.fetch();
+
+                cpu.incrementPC();
+
+                cpu.decodeAndExecute();
+
+                nextCPUTick += CPU_TICK;
+            }
+
+            if (System.currentTimeMillis() > nextTimerTick) {
+
+                display.render();
+
+                if ((registry.DT & 0xFF) > 0) {
+                    registry.DT--;
+                }
+
+                if ((registry.ST & 0xFF) > 0) {
+                    registry.ST--;
+                }
+
+                nextTimerTick += TIMER_TICK;
+                loops++;
+                System.out.println("Loop:" + loops);
+            }
         }
     }
 }

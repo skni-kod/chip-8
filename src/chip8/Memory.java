@@ -123,7 +123,7 @@ public class Memory {
             System.out.println("Address " + address +  " out of range!");
             return 0x0;
         } else {
-            return memory[address];
+            return (byte) (memory[(short) address]);
         }
     }
 

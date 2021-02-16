@@ -41,7 +41,7 @@ public class CPU {
     void decodeAndExecute() {
         byte firstNib = (byte) ((currentInstr >> 12) & 0xF);
 
-        System.out.println(String.format("Instruction:%04X", currentInstr));
+//        System.out.println(String.format("Instruction:%04X", currentInstr));
 
         switch (firstNib) {
             case 0x00:
@@ -571,7 +571,7 @@ public class CPU {
      * @param reg Register to add to I.
      */
     public void setIRegSum(byte reg) {
-        registry.IReg = (short) (registry.IReg + registry.VReg[reg]);
+        registry.IReg = (short) (registry.IReg + (registry.VReg[reg] & 0xFF));
     }
 
     /**

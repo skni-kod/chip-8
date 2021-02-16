@@ -78,6 +78,16 @@ public class Display {
 //        } else if (y < 0 || y > 31) {
 //            System.out.println("Screen Y coordinate out of range.");
 //        }
+
+        while (x < 0) {
+            x = (64 + x) % 64;
+
+        }
+
+        while (y < 0) {
+            y = (32 + y) % 32;
+        }
+
         //drawing sprites or normal pixels
         //when drawing sprites, pixels are XORed on the screen
         //when not drawing a sprite, pixels are just set to the value
@@ -90,7 +100,7 @@ public class Display {
             //returns true if pixel was erased - a collision occurred, otherwise false.
             return prevVal && !screen[x % 64][y % 32];
         } else {
-            screen[x][y] = value;
+            screen[x % 64][y % 32] = value;
             return false;
         }
     }

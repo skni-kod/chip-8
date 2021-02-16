@@ -196,6 +196,7 @@ public class Disassembler {
 
     public void disassembleToFile(short start, int size, String filename) {
         try {
+            PrintStream stdout = System.out;
             PrintStream out = new PrintStream(new FileOutputStream(filename));
             System.setOut(out);
 
@@ -204,6 +205,8 @@ public class Disassembler {
             }
 
             out.close();
+
+            System.setOut(stdout);
 
         } catch (Exception e) {
             e.printStackTrace();

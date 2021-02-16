@@ -8,6 +8,8 @@ public class Chip8 {
     private Display display;
     private Keyboard keyboard;
 
+    private Disassembler disassembler;
+
 
     public Chip8(String filename) {
         memory = new Memory();
@@ -15,6 +17,9 @@ public class Chip8 {
         registry = new Registry();
         display = new Display(12, memory, keyboard);
         cpu = new CPU(memory, registry, display, keyboard);
+
+        disassembler = new Disassembler(memory);
+
 
         int size;
         try {
@@ -42,9 +47,12 @@ public class Chip8 {
 //                System.out.println("PC OUT OF ORDER");
 //            }
 
+
             if (System.currentTimeMillis() > nextCPUTick) {
 
                 cpu.fetch();
+
+                disassembler.disassemble(registry.PC);
 
                 cpu.incrementPC();
 
@@ -69,6 +77,7 @@ public class Chip8 {
                 loops++;
                 System.out.println("Loop:" + loops);
             }
+
         }
     }
 }

@@ -518,13 +518,76 @@ public class CPUTest {
 
     @Test
     public void setISpriteAddrRegTest() {
+        //for every sprite
         for (int i = 0x0; i < 0xF; i++) {
+            //set the sprite's value in the register 0x3
             registry.VReg[0x3] = (byte) i;
 
             cpu.setISpriteAddrReg((byte) 0x3);
 
+            //addresses in I register and expected one are the same
             assertEquals((byte) (i * 5), registry.IReg);
         }
+    }
 
+    @Test
+    public void setBCDRegITest() {
+        //value of 0xFF is 255
+        registry.VReg[0xC] = (byte) 0xFF;
+
+        cpu.setBCDRegI((byte) 0xC);
+
+        assertEquals(2, memory.get(registry.IReg));
+        assertEquals(5, memory.get((short) (registry.IReg + 1)));
+        assertEquals(5, memory.get((short) (registry.IReg + 2)));
+
+        //value of 0x55 is 85, BCD representation is 085
+        registry.VReg[0xC] = (byte) 0x55;
+
+        cpu.setBCDRegI((byte) 0xC);
+
+        assertEquals(0, memory.get(registry.IReg));
+        assertEquals(8, memory.get((short) (registry.IReg + 1)));
+        assertEquals(5, memory.get((short) (registry.IReg + 2)));
+    }
+
+    @Test
+    public void storeRegsAtITest() {
+        //setting the registry
+        for (int i = 1; i <= 0xF; i++) {
+            registry.VReg[i] = (byte) (i + 20);
+        }
+        //the last register to be stored
+        registry.VReg[0] = 0xF;
+
+        //address to store the regs at
+        registry.IReg = 0x400;
+
+        cpu.storeRegsAtI((byte) 0x0);
+
+        //checking the values stored in memory
+        assertEquals((byte) 0xF, memory.get((short) 0x400));
+        for (int i = 1; i <= 0xF; i++) {
+            assertEquals((byte) (i + 20), memory.get((short) (0x400 + i)));
+        }
+    }
+
+    @Test
+    public void loadRegsAtITest() {
+        //setting the memory
+        for (short i = 0; i <= 0xF; i++) {
+            memory.set((short) (0x500 + i), (byte) i);
+        }
+
+        //setting the last register to be stored in example reg 0x2
+        registry.VReg[0x2] = (byte) 0xF;
+        //setting the address in the memory
+        registry.IReg = 0x500;
+
+        cpu.loadRegsAtI((byte) 0x2);
+
+        for (int i = 0; i <= 0xF; i++) {
+            assertEquals((byte) i, registry.VReg[i]);
+        }
     }
 }

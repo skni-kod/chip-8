@@ -177,14 +177,13 @@ public class CPU {
                 } else if ((currentInstr & 0xFF) == 0x33) {
                     //Fx33 - Store BCD representation of Vx in memory locations I, I+1, I+2
                     setBCDRegI((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x55) {
+                    //Fx55 - Store registers V0 through Vx(including) in memory starting at location I.
+                    storeRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
+                } else if ((currentInstr & 0xFF) == 0x65) {
+                    //Fx65 - Read registers V0 through Vx from memory starting at location I.
+                    loadRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
                 }
-//                else if ((currentInstr & 0xFF) == 0x55) {
-//                    //Fx55 - Store registers V0 through Vx(including) in memory starting at location I.
-//                    storeRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
-//                } else if ((currentInstr & 0xFF) == 0x65) {
-//                    //Fx65 - Read registers V0 through Vx from memory starting at location I.
-//                    loadRegsAtI((byte) ((currentInstr & 0x0F00) >> 8));
-//                }
 
                 break;
 
@@ -653,18 +652,45 @@ public class CPU {
      * Fx33 - LD B, Vx
      * Store BCD representation of Vx in memory locations I, I+1, I+2.
      * Hundreds digit stored in memory at location I, tens digit at I+1 and ones digit at I + 2.
+     * @param reg Register that holds the value.
      */
     public void setBCDRegI(byte reg) {
         //calculate BCD representation of the number
-        byte value = registry.VReg[reg];
-        byte ones = (byte) (value % 10);
-        byte tens = (byte) ((value - ones) % 100);
-        byte hundreds = (byte) ((value - ones - tens) % 1000);
+        //as always, java's signed types are certainly not helping us, so there's lot of byte masking
+        byte value = (byte) (registry.VReg[reg] & 0xFF);
+        byte ones = (byte) ((value & 0xFF) % 10);
+        byte tens = (byte) (((value & 0xFF) - ones) % 100 / 10);
+        byte hundreds = (byte) (((value & 0xFF) - ones - tens) % 1000 / 100);
 
         //set the memory using the I register
         memory.set(registry.IReg, hundreds);
         memory.set((short) (registry.IReg + 1), tens);
         memory.set((short) (registry.IReg + 2), ones);
+    }
+
+    /**
+     * Fx55 - LD [I], Vx
+     * Store register from V0 to Vx (included) in memory, starting at location stored in I.
+     * @param reg Register that holds the index of the last register included.
+     */
+    public void storeRegsAtI(byte reg) {
+        //copying the values of registry to the memory, starting at I
+        for (int i = 0; i <= registry.VReg[reg]; i++) {
+            memory.set((short) (registry.IReg + i), registry.VReg[i]);
+        }
+    }
+
+    /**
+     * Fx65 - LD Vx, [I]
+     * Read registers from V0 to Vx (included) from memory, starting at location stored in I.
+     * @param reg Register that holds the index of th elast register included.
+     */
+    public void loadRegsAtI(byte reg) {
+        //loading the values from the memory to the registry, starting at I
+        byte range = registry.VReg[reg];
+        for (byte i = 0; i <= range; i++) {
+            registry.VReg[i] = memory.get((short) (registry.IReg + i));
+        }
     }
 }
 

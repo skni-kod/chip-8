@@ -36,15 +36,19 @@ public class Display {
      */
     private DrawBoard drawBoard;
 
+    private boolean overlappingMode;
+
     /**
      * Constructor creating a new JFrame and DrawBoard.
      * @param pixelSize Size of a single pixel on the screen.
      * @param memory Reference to chip's memory.
      */
-    public Display(int pixelSize, Memory memory, Keyboard keyboard) {
+    public Display(int pixelSize, Memory memory, Keyboard keyboard, boolean overlappingMode) {
         this.pixelSize = pixelSize;
 
         screen = new boolean[64][32];
+
+        this.overlappingMode = overlappingMode;
 
         this.memory = memory;
         this.keyboard = keyboard;
@@ -60,8 +64,10 @@ public class Display {
         drawBoard.setPreferredSize(new Dimension(pixelSize * 64, pixelSize * 32));
         frame.getContentPane().add(drawBoard);
 
-        frame.setSize(new Dimension(pixelSize * 64 + 32, pixelSize * 32 + 64));
+        frame.setSize(new Dimension(pixelSize * 64 + 32, pixelSize * 32 + 32));
         frame.setVisible(true);
+
+        frame.pack();
     }
 
     /**
@@ -73,12 +79,13 @@ public class Display {
      * @return True if collision occurs, otherwise false.
      */
     public boolean setPixel(int x, int y, boolean value, boolean sprite) {
-//        if (x < 0 || x > 63) {
-//            System.out.println("Screen X coordinate out of range.");
-//        } else if (y < 0 || y > 31) {
-//            System.out.println("Screen Y coordinate out of range.");
-//        }
 
+        if (!overlappingMode) {
+            if (x < 0 || x > 63 || y < 0 || y > 31) {
+                System.out.println("Screen coordinate out out bounds, overlapping turned off.");
+                return false;
+            }
+        }
         while (x < 0) {
             x = (64 + x) % 64;
 

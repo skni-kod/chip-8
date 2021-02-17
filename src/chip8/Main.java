@@ -7,8 +7,10 @@ public class Main {
         //TODO fix the keyboard
         //TODO fix emulation speeds
         //TODO sounds
+        //TODO rebuild display
+        //TODO rebuild keyboard to use it in debugging
 
-        String filename = "./c8games/HIDDEN";
+        String filename = "./c8games/BLITZ";
         Memory memory = new Memory();
         int size = 0;
         try {

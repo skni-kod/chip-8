@@ -18,11 +18,12 @@ public class Chip8 {
         //quirks
         boolean loadStoreQuirk = true;
         boolean shiftQuirk = false;
+        boolean overlappingMode = false;
 
         memory = new Memory();
         keyboard = new Keyboard();
         registry = new Registry();
-        display = new Display(12, memory, keyboard);
+        display = new Display(12, memory, keyboard, overlappingMode);
         cpu = new CPU(memory, registry, display, keyboard, loadStoreQuirk, shiftQuirk);
 
         disassembler = new Disassembler(memory);
@@ -41,7 +42,7 @@ public class Chip8 {
     public void loop() {
 
         final int TIMER_TICK = 1000 / 60;
-        final int CPU_FREQ = 200;
+        final int CPU_FREQ = 500;
         final int CPU_TICK = 1000 / CPU_FREQ;
 
         int loops = 0;

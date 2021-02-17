@@ -1,5 +1,9 @@
 package chip8;
 
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class Chip8 {
 
     private CPU cpu;
@@ -12,7 +16,7 @@ public class Chip8 {
 
     public Chip8(String filename) {
         //quirks
-        boolean loadStoreQuirk = false;
+        boolean loadStoreQuirk = true;
         boolean shiftQuirk = false;
 
         memory = new Memory();
@@ -40,47 +44,48 @@ public class Chip8 {
         final int CPU_FREQ = 200;
         final int CPU_TICK = 1000 / CPU_FREQ;
 
-        double nextTimerTick = System.currentTimeMillis();
-        double nextCPUTick = System.currentTimeMillis();
         int loops = 0;
+
+        Timer delayTimer = new Timer();
+
+        delayTimer.schedule(new DelayTask(), TIMER_TICK, TIMER_TICK);
 
         while (true) {
 
-//            if (registry.PC % 2 != 0) {
-//                System.out.println("PC OUT OF ORDER");
-//            }
+            cpu.fetch();
 
+            disassembler.disassemble(registry.PC);
 
-            if (System.currentTimeMillis() > nextCPUTick) {
+            cpu.incrementPC();
 
-                cpu.fetch();
+            cpu.decodeAndExecute();
 
-                disassembler.disassemble(registry.PC);
-
-                cpu.incrementPC();
-
-                cpu.decodeAndExecute();
-
-                nextCPUTick += CPU_TICK;
+            try {
+                Thread.sleep(CPU_TICK);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            if (System.currentTimeMillis() > nextTimerTick) {
 
-                display.render();
+        }
+    }
 
-                if ((registry.DT & 0xFF) > 0) {
-                    registry.DT--;
-                }
+    public void renderAndDecrementTimers() {
+        display.render();
 
-                if ((registry.ST & 0xFF) > 0) {
-                    registry.ST--;
-                }
+        if ((registry.DT & 0xFF) > 0) {
+            registry.DT--;
+        }
 
-                nextTimerTick += TIMER_TICK;
-                loops++;
-                System.out.println("Loop:" + loops);
-            }
+        if ((registry.ST & 0xFF) > 0) {
+            registry.ST--;
+        }
+    }
 
+    class DelayTask extends TimerTask {
+        @Override
+        public void run() {
+            renderAndDecrementTimers();
         }
     }
 }

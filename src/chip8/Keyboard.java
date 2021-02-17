@@ -9,6 +9,7 @@ public class Keyboard implements KeyListener {
 
     public int currentlyPressedCount = 0;
     public int lastUsed = 0;
+    private int lastUsedRelease = 0;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -17,12 +18,16 @@ public class Keyboard implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        setKey(e.getKeyCode(), true, true);
+        if (e.getKeyCode() != lastUsedRelease) {
+            setKey(e.getKeyCode(), true, true);
+            lastUsedRelease = e.getKeyCode();
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         setKey(e.getKeyCode(), false, true);
+        lastUsedRelease = -1;
     }
 
     /**
@@ -45,13 +50,13 @@ public class Keyboard implements KeyListener {
 
             if (prev != pressedKeys[keyCode]) {
                 if (value) {
+                    lastUsed = keyCode;
                     currentlyPressedCount++;
                 } else {
+                    lastUsed = keyCode;
                     currentlyPressedCount--;
                 }
             }
-            //TODO may be buggy
-            lastUsed = keyCode;
 
             return true;
         }

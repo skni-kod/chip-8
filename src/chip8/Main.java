@@ -6,8 +6,9 @@ public class Main {
 
         //TODO fix the keyboard
         //TODO fix emulation speeds
+        //TODO sounds
 
-        String filename = "space_invaders.ch8";
+        String filename = "./c8games/HIDDEN";
         Memory memory = new Memory();
         int size = 0;
         try {

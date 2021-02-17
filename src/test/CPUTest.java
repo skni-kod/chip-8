@@ -22,7 +22,7 @@ public class CPUTest {
         registry = new Registry();
         keyboard = new Keyboard();
         display = new Display(12, memory, keyboard);
-        cpu = new CPU(memory, registry, display, keyboard);
+        cpu = new CPU(memory, registry, display, keyboard, false, false);
     }
 
     @Test
@@ -270,18 +270,20 @@ public class CPUTest {
         //0x0A >> 1 = 0x5, VF = 0
         registry.VReg[2] = (byte) 0x0A;
 
-        cpu.shiftRight((byte) 2);
+        cpu.shiftRight((byte) 1, (byte) 2);
 
-        assertEquals((byte) 0x5, registry.VReg[2]);
-        assertEquals((byte) 0x0, registry.VReg[0xF]);
+        assertEquals((byte) 0x5, registry.VReg[1]); //V2 (Vy) shifted right stored in V1 (Vx)
+        assertEquals((byte) 0x0, registry.VReg[0xF]); //least significant bit stored in VF
+        assertEquals((byte) 0x0A, registry.VReg[2]); //V2 (Vy) remains untouched
 
         //0xFF >> 1 = 0x7F, VF = 1
         registry.VReg[2] = (byte) 0xFF;
 
-        cpu.shiftRight((byte) 2);
+        cpu.shiftRight((byte) 1,(byte) 2);
 
-        assertEquals((byte) 0x7F, registry.VReg[2]);
+        assertEquals((byte) 0x7F, registry.VReg[1]);
         assertEquals((byte) 0x1, registry.VReg[0xF]);
+        assertEquals((byte) 0xFF, registry.VReg[2]);
     }
 
     @Test
@@ -310,18 +312,20 @@ public class CPUTest {
         //0x0A << 1 = 0x14, VF = 0
         registry.VReg[2] = (byte) 0x0A;
 
-        cpu.shiftLeft((byte) 2);
+        cpu.shiftLeft((byte) 1, (byte) 2);
 
-        assertEquals((byte) 0x14, registry.VReg[2]);
-        assertEquals((byte) 0x0, registry.VReg[0xF]);
+        assertEquals((byte) 0x14, registry.VReg[1]); //result stored in Vx.
+        assertEquals((byte) 0x0, registry.VReg[0xF]); //most significant bit stored in VF
+        assertEquals((byte) 0x0A, registry.VReg[2]); //register Vy stays the same
 
         //0xFF << 1 = 0xFE, VF = 1 (0xFF << 1 = 0x1FE -> lower byte -> 0xFE)
         registry.VReg[2] = (byte) 0xFF;
 
-        cpu.shiftLeft((byte) 2);
+        cpu.shiftLeft((byte) 1, (byte) 2);
 
-        assertEquals((byte) 0xFE, registry.VReg[2]);
-        assertEquals((byte) 0x1, registry.VReg[0xF]);
+        assertEquals((byte) 0xFE, registry.VReg[1]); //result stored in Vx
+        assertEquals((byte) 0x1, registry.VReg[0xF]); //most significant bit stored in VF
+        assertEquals((byte) 0x0FF, registry.VReg[2]); //register Vy stays the same
     }
 
     @Test
@@ -567,6 +571,7 @@ public class CPUTest {
         for (int i = 0; i <= 0xF; i++) {
             assertEquals((byte) (i + 20), memory.get((short) (0x400 + i)));
         }
+        assertEquals(0x410, registry.IReg); //I = I + 0xF + 1
     }
 
     @Test
@@ -584,5 +589,6 @@ public class CPUTest {
         for (int i = 0; i <= 0xF; i++) {
             assertEquals((byte) i, registry.VReg[i]);
         }
+        assertEquals(0x510, registry.IReg); //I = I + 0xF + 1
     }
 }

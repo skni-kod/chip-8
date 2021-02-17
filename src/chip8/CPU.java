@@ -13,11 +13,17 @@ public class CPU {
 
     short currentInstr;
 
-    public CPU(Memory memory, Registry registry, Display display, Keyboard keyboard) {
+    boolean loadStoreQuirk;
+    boolean shiftQuirk;
+
+    public CPU(Memory memory, Registry registry, Display display, Keyboard keyboard, boolean loadStoreQuirk, boolean shiftQuirk) {
         this.memory = memory;
         this.registry = registry;
         this.display = display;
         this.keyboard = keyboard;
+
+        this.loadStoreQuirk = loadStoreQuirk;
+        this.shiftQuirk = shiftQuirk;
 
         randomGen = new Random();
 
@@ -110,13 +116,13 @@ public class CPU {
                     subRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
                 } else if ((currentInstr & 0x0F) == 0x06) {
                     //8xy6 - Set Vx = Vx SHR 1, store least significant bit in VF
-                    shiftRight((byte) ((currentInstr & 0x0F00) >> 8));
+                    shiftRight((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
                 } else if ((currentInstr & 0x0F) == 0x07) {
                     //8xy7 - Set Vx = Vy - Vx, set VF = NOT borrow
                     subNegativeRegReg((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
                 } else if ((currentInstr & 0x0F) == 0x0E) {
                     //8xyE - Set Vx = Vx SHL 1, store most significant bit on VF
-                    shiftLeft((byte) ((currentInstr & 0x0F00) >> 8));
+                    shiftLeft((byte) ((currentInstr & 0x0F00) >> 8), (byte) ((currentInstr & 0x00F0) >> 4));
                 }
 
                 break;
@@ -390,20 +396,35 @@ public class CPU {
     }
 
     /**
+     * TODO FIX
      * 8xy6 - SHR Vx {, Vy}.
      * Set Vx = Vx SHR 1.
      * Shift register Vx right. Least significant bit of Vx is stored in VF.
-     * @param reg Register to shift right.
+     * @param regX Register to store the result in.
+     * @param regY Register to shift right.
      */
-    public void shiftRight(byte reg) {
-        //store least significant byte in VF
-        registry.VReg[0xF] = (byte) (registry.VReg[reg] & 0x1);
+    public void shiftRight(byte regX, byte regY) {
+        short val;
 
-        //casting register to a bigger type, getting rid of sign with 0xFF
-        short val = (short) (registry.VReg[reg] & 0xFF);
+        //if shift quirk is turned on, reg Vx is the one shifted and saved in Vx
+        //otherwise Vy is the one shifted and saved in Vx
+        //references aren't consistent about this instruction
+        if (shiftQuirk) {
+            //store least significant byte in VF
+            registry.VReg[0xF] = (byte) (registry.VReg[regX] & 0x1);
+
+            //casting register to a bigger type, getting rid of sign with 0xFF
+            val = (short) (registry.VReg[regX] & 0xFF);
+        } else {
+            //store least significant byte in VF
+            registry.VReg[0xF] = (byte) (registry.VReg[regY] & 0x1);
+
+            //casting register to a bigger type, getting rid of sign with 0xFF
+            val = (short) (registry.VReg[regY] & 0xFF);
+        }
 
         /// >>> means zero fill right shift
-        registry.VReg[reg] = (byte) (val >>> 1);
+        registry.VReg[regX] = (byte) (val >>> 1);
     }
 
     /**
@@ -432,20 +453,35 @@ public class CPU {
     }
 
     /**
+     * TODO FIX
      * 8xyE - SHL Vx {, Vy}.
      * Set Vx= Vx SHL 1
      * Shift register Vx left. Most significant bit of Vx is stored in VF.
-     * @param reg Register to shift left.
+     * @param regX Register to store the result in.
+     * @param regY Register to shift left.
      */
-    public void shiftLeft(byte reg) {
-        //store most significant byte in VF
-        registry.VReg[0xF] = (byte) ((registry.VReg[reg] & 0x80) >> 7);
+    public void shiftLeft(byte regX, byte regY) {
+        short val;
 
-        //casting register to a bigger type, getting rid of sign with 0xFF
-        short val = (short) (registry.VReg[reg] & 0xFF);
+        //if shift quirk is turned on, reg Vx is the one shifted and saved in Vx
+        //otherwise Vy is the one shifted and saved in Vx
+        //references aren't consistent about this instruction
+        if (shiftQuirk) {
+            //store most significant byte in VF
+            registry.VReg[0xF] = (byte) ((registry.VReg[regX] & 0x80) >> 7);
+
+            //casting register to a bigger type, getting rid of sign with 0xFF
+            val = (short) (registry.VReg[regX] & 0xFF);
+        } else {
+            //store most significant byte in VF
+            registry.VReg[0xF] = (byte) ((registry.VReg[regY] & 0x80) >> 7);
+
+            //casting register to a bigger type, getting rid of sign with 0xFF
+            val = (short) (registry.VReg[regY] & 0xFF);
+        }
 
         //shifting left
-        registry.VReg[reg] = (byte) (val << 1);
+        registry.VReg[regX] = (byte) (val << 1);
     }
 
     /**
@@ -673,24 +709,40 @@ public class CPU {
     /**
      * Fx55 - LD [I], Vx
      * Store register from V0 to Vx (included) in memory, starting at location stored in I.
+     * Increment I (I = I + X + 1)
      * @param reg Index of the last register included.
      */
     public void storeRegsAtI(byte reg) {
         //copying the values of registry to the memory, starting at I
         for (int i = 0; i <= reg; i++) {
-            memory.set((short) (registry.IReg + i), registry.VReg[i]);
+            //if loadStoreQuirk, I Register is incremented/modified when storing regs in memory
+            //references aren't consistent about this instruction
+            if (loadStoreQuirk) {
+                memory.set((short) (registry.IReg + i), registry.VReg[i]);
+            } else {
+                memory.set((short) (registry.IReg), registry.VReg[i]);
+                registry.IReg++;
+            }
         }
     }
 
     /**
      * Fx65 - LD Vx, [I]
      * Read registers from V0 to Vx (included) from memory, starting at location stored in I.
+     * Increment I (I = I + X + 1)
      * @param reg Index of the last register included.
      */
     public void loadRegsAtI(byte reg) {
         //loading the values from the memory to the registry, starting at I
         for (byte i = 0; i <= reg; i++) {
-            registry.VReg[i] = memory.get((short) (registry.IReg + i));
+            //if loadStoreQuirk, I Register is not incremented/modified when loading regs from memory
+            //references aren't consistent about this instruction
+            if (loadStoreQuirk) {
+                registry.VReg[i] = memory.get((short) (registry.IReg + i));
+            } else {
+                registry.VReg[i] = memory.get((short) (registry.IReg));
+                registry.IReg++;
+            }
         }
     }
 }

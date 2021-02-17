@@ -10,13 +10,16 @@ public class Chip8 {
 
     private Disassembler disassembler;
 
-
     public Chip8(String filename) {
+        //quirks
+        boolean loadStoreQuirk = false;
+        boolean shiftQuirk = false;
+
         memory = new Memory();
         keyboard = new Keyboard();
         registry = new Registry();
         display = new Display(12, memory, keyboard);
-        cpu = new CPU(memory, registry, display, keyboard);
+        cpu = new CPU(memory, registry, display, keyboard, loadStoreQuirk, shiftQuirk);
 
         disassembler = new Disassembler(memory);
 
@@ -34,7 +37,7 @@ public class Chip8 {
     public void loop() {
 
         final int TIMER_TICK = 1000 / 60;
-        final int CPU_FREQ = 500;
+        final int CPU_FREQ = 200;
         final int CPU_TICK = 1000 / CPU_FREQ;
 
         double nextTimerTick = System.currentTimeMillis();

@@ -2,6 +2,8 @@ package chip8;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -12,9 +14,14 @@ public class Display {
     private boolean screen[][];
 
     /**
-     * Size of a single pixel on the screen.
+     * Width of a single pixel on the screen.
      */
-    private int pixelSize;
+    private int pixelWidth;
+
+    /**
+     * Height of a single pixel on the screen.
+     */
+    private int pixelHeight;
 
     /**
      * Reference to the memory.
@@ -36,6 +43,11 @@ public class Display {
      */
     private DrawBoard drawBoard;
 
+    /**
+     * Whether sprites should overlap on the screen, when they reach the border.
+     * Some chip-8 programs are written to overlap sprites only, if the whole sprite is beyond the screen.
+     * References aren't certain, whether this should be a standard. Most programs use overlapping mode by default.
+     */
     private boolean overlappingMode;
 
     /**
@@ -44,7 +56,8 @@ public class Display {
      * @param memory Reference to chip's memory.
      */
     public Display(int pixelSize, Memory memory, Keyboard keyboard, boolean overlappingMode) {
-        this.pixelSize = pixelSize;
+        this.pixelWidth = pixelSize;
+        this.pixelHeight = pixelSize;
 
         screen = new boolean[64][32];
 
@@ -54,17 +67,31 @@ public class Display {
         this.keyboard = keyboard;
     }
 
+    /**
+     * Initializes the display by creating a Swing window with the screen.
+     */
     public void initDisplay() {
         frame = new JFrame("Chip-8");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.addKeyListener(keyboard);
 
+        frame.setResizable(true);
+
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                pixelWidth = (int) e.getComponent().getSize().getWidth() / 64;
+                pixelHeight = (int) (e.getComponent().getSize().getHeight() - 32) / 32;
+            }
+        });
+
         drawBoard = new DrawBoard();
-        drawBoard.setPreferredSize(new Dimension(pixelSize * 64, pixelSize * 32));
+        drawBoard.setPreferredSize(new Dimension(pixelWidth * 64, pixelHeight * 32));
         frame.getContentPane().add(drawBoard);
 
-        frame.setSize(new Dimension(pixelSize * 64 + 32, pixelSize * 32 + 32));
+        frame.setSize(new Dimension(pixelWidth * 64 + 16, pixelHeight * 32 + 64));
         frame.setVisible(true);
 
         frame.pack();
@@ -188,7 +215,7 @@ public class Display {
 
         @Override
         public Dimension getPreferredSize() {
-            return new Dimension(pixelSize * 64, pixelSize * 32);
+            return new Dimension(pixelWidth * 64, pixelHeight * 32);
         }
 
         @Override
@@ -202,7 +229,7 @@ public class Display {
                     } else {
                         g.setColor(Color.BLACK);
                     }
-                    g.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                    g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
         }

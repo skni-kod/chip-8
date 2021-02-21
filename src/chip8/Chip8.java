@@ -1,6 +1,6 @@
 package chip8;
 
-
+import javax.sound.sampled.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -11,14 +11,20 @@ public class Chip8 {
     private Registry registry;
     private Display display;
     private Keyboard keyboard;
+    private Sound sound;
 
     private Disassembler disassembler;
 
+    boolean soundUnavailable;
+
+
     public Chip8(String filename) {
         //quirks
-        boolean loadStoreQuirk = true;
-        boolean shiftQuirk = false;
-        boolean overlappingMode = false;
+        boolean loadStoreQuirk = false;
+        boolean shiftQuirk = true;
+        boolean overlappingMode = true;
+
+        soundUnavailable = false;
 
         memory = new Memory();
         keyboard = new Keyboard();
@@ -26,8 +32,14 @@ public class Chip8 {
         display = new Display(12, memory, keyboard, overlappingMode);
         cpu = new CPU(memory, registry, display, keyboard, loadStoreQuirk, shiftQuirk);
 
-        disassembler = new Disassembler(memory);
+        try {
+            sound = new Sound();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            soundUnavailable = true;
+        }
 
+        disassembler = new Disassembler(memory);
 
         int size;
         try {
@@ -67,7 +79,6 @@ public class Chip8 {
                 e.printStackTrace();
             }
 
-
         }
     }
 
@@ -78,10 +89,20 @@ public class Chip8 {
             registry.DT--;
         }
 
-        if ((registry.ST & 0xFF) > 0) {
-            registry.ST--;
+        //according to mattmikolay's reference, minimum value that the timer will respond to is 0x02
+        if ((registry.ST & 0xFF) > 0x1) {
+            if (soundUnavailable) {
+                registry.ST--;
+            } else {
+                sound.startSound();
+                registry.ST--;
+                if (registry.ST <= 0x1) {
+                    sound.stopSound();
+                }
+            }
         }
     }
+
 
     class DelayTask extends TimerTask {
         @Override

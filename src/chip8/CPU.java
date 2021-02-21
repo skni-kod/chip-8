@@ -396,12 +396,12 @@ public class CPU {
     }
 
     /**
-     * TODO FIX
      * 8xy6 - SHR Vx {, Vy}.
-     * Set Vx = Vx SHR 1.
-     * Shift register Vx right. Least significant bit of Vx is stored in VF.
+     * Set Vx = Vy SHR 1 or Vx = Vx SHR 1.
+     * Shift register Vy right, then store the result in Vx. Least significant bit of Vy is stored in VF.
+     * If ShiftQuirk is true, Shift register Vx rather than Vy and then store the result in Vx.
      * @param regX Register to store the result in.
-     * @param regY Register to shift right.
+     * @param regY Register to shift right if ShiftQuirk is false.
      */
     public void shiftRight(byte regX, byte regY) {
         short val;
@@ -453,12 +453,12 @@ public class CPU {
     }
 
     /**
-     * TODO FIX
      * 8xyE - SHL Vx {, Vy}.
-     * Set Vx= Vx SHL 1
-     * Shift register Vx left. Most significant bit of Vx is stored in VF.
+     * Set Vx = Vy SHL 1 or Vx = Vx SHL 1.
+     * Shift register Vy left, then store the result in Vx.. Most significant bit of Vx is stored in VF.
+     * If ShiftQuirk is true, Shift register Vx rather than Vy and then store the result in Vx.
      * @param regX Register to store the result in.
-     * @param regY Register to shift left.
+     * @param regY Register to shift left, if ShiftQuirk is false.
      */
     public void shiftLeft(byte regX, byte regY) {
         short val;

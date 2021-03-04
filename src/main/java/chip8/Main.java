@@ -10,7 +10,7 @@ public class Main {
         //TODO rebuild display
         //TODO rebuild keyboard to use it in debugging
 
-        String filename = "./chip_roms/c8games/TANK";
+        String filename = "./chip_roms/c8games/PONG";
         Memory memory = new Memory();
         int size = 0;
         try {

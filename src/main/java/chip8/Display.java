@@ -4,8 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Display {
     /**
@@ -70,7 +68,7 @@ public class Display {
     /**
      * Initializes the display by creating a Swing window with the screen.
      */
-    public void initDisplay() {
+    public void createSwingGUI() {
         frame = new JFrame("Chip-8");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

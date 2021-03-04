@@ -27,6 +27,7 @@ public class CPU {
 
         randomGen = new Random();
 
+        //beginning PC at 0x200
         this.registry.PC = (short) 0x200;
         this.registry.SP = -1;
     }
@@ -46,8 +47,6 @@ public class CPU {
 
     void decodeAndExecute() {
         byte firstNib = (byte) ((currentInstr >> 12) & 0xF);
-
-//        System.out.println(String.format("Instruction:%04X", currentInstr));
 
         switch (firstNib) {
             case 0x00:

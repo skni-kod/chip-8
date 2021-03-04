@@ -13,8 +13,6 @@ public class Chip8 {
     private Keyboard keyboard;
     private Sound sound;
 
-    private Disassembler disassembler;
-
     boolean soundUnavailable;
 
 
@@ -39,8 +37,6 @@ public class Chip8 {
             soundUnavailable = true;
         }
 
-        disassembler = new Disassembler(memory);
-
         int size;
         try {
             size = memory.loadFile(filename);
@@ -48,7 +44,7 @@ public class Chip8 {
             e.printStackTrace();
         }
 
-        display.initDisplay();
+        display.createSwingGUI();
     }
 
     public void loop() {
@@ -67,8 +63,6 @@ public class Chip8 {
 
             cpu.fetch();
 
-            disassembler.disassemble(registry.PC);
-
             cpu.incrementPC();
 
             cpu.decodeAndExecute();
@@ -78,7 +72,6 @@ public class Chip8 {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -102,7 +95,6 @@ public class Chip8 {
             }
         }
     }
-
 
     class DelayTask extends TimerTask {
         @Override

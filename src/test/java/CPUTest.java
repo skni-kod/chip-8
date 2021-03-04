@@ -1,12 +1,12 @@
-package test;
-
 import chip8.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class CPUTest {
 
@@ -16,8 +16,8 @@ public class CPUTest {
     private Keyboard keyboard;
     private CPU cpu;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() {
         memory = new Memory();
         registry = new Registry();
         keyboard = new Keyboard();

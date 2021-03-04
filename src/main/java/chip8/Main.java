@@ -10,7 +10,7 @@ public class Main {
         //TODO rebuild display
         //TODO rebuild keyboard to use it in debugging
 
-        String filename = "./chip_roms/c8games/PONG";
+        String filename = "./chip_roms/c8games/TANK";
         Memory memory = new Memory();
         int size = 0;
         try {
@@ -18,9 +18,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        Disassembler disassembler = new Disassembler(memory);
-//        disassembler.disassembleToFile((short) 0x200, size, filename + ".txt");
 
         Chip8 chip8 = new Chip8(filename);
         chip8.loop();

@@ -12,8 +12,9 @@ public class Chip8 {
     private Display display;
     private Keyboard keyboard;
     private Sound sound;
+    private Disassembler disassembler;
 
-    private RegisterViewGUI registerViewGUI;
+    private DebugViewGUI registerViewGUI;
 
     boolean soundUnavailable;
 
@@ -31,6 +32,7 @@ public class Chip8 {
         registry = new Registry();
         display = new SwingDisplay(12, memory, keyboard, overlappingMode);
         cpu = new CPU(memory, registry, display, keyboard, loadStoreQuirk, shiftQuirk);
+        disassembler = new Disassembler(memory);
 
         try {
             sound = new Sound();
@@ -48,7 +50,7 @@ public class Chip8 {
 
         display.createGUI();
 
-        registerViewGUI = new RegisterViewGUI(registry);
+        registerViewGUI = new DebugViewGUI(registry, disassembler);
         registerViewGUI.createGUI();
     }
 
@@ -83,6 +85,7 @@ public class Chip8 {
     public void renderAndDecrementTimers() {
         display.render();
         registerViewGUI.updateRegisters();
+        registerViewGUI.updateInstructions();
 
         if ((registry.DT & 0xFF) > 0) {
             registry.DT--;

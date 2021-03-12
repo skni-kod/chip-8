@@ -6,6 +6,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
+/**
+ * Swing GUI implementing the Display interface to represent chip-8's screen.
+ */
 public class SwingGUI implements Display {
     /**
      * 32 x 64 screen.

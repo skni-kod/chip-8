@@ -3,6 +3,9 @@ package chip8;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+/**
+ * Class representing chip-8's keyboard.
+ */
 public class Keyboard implements KeyListener {
 
     /**

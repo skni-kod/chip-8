@@ -1,5 +1,8 @@
 package chip8;
 
+/**
+ * Class representing chip-8's registry - all the registers, timers and pointers.
+ */
 public class Registry {
 
     /**

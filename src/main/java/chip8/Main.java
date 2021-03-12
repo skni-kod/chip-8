@@ -1,5 +1,7 @@
 package chip8;
 
+import java.io.IOException;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -58,8 +60,12 @@ public class Main {
             }
         }
 
-        Chip8 chip8 = new Chip8(filename, cpuFreq, loadStoreQuirk, shiftQuirk, overlappingMode, regGUIFlag);
-        chip8.loop();
+        try {
+            Chip8 chip8 = new Chip8(filename, cpuFreq, loadStoreQuirk, shiftQuirk, overlappingMode, regGUIFlag);
+            chip8.loop();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

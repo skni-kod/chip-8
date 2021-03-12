@@ -1,14 +1,12 @@
 package chip8;
 
-import org.w3c.dom.css.RGBColor;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
-public class SwingDisplay implements Display {
+public class SwingGUI implements Display {
     /**
      * 32 x 64 screen.
      */
@@ -54,11 +52,17 @@ public class SwingDisplay implements Display {
     private boolean overlappingMode;
 
     /**
+     * Warning boolean that is set when a pixel was drawn outside of the screen bounds,
+     * and screen overlapping is turned off. This may be a desired effect (for ex. BLITZ game), or a bug.
+     */
+    private boolean warningSet = false;
+
+    /**
      * Constructor creating a new JFrame and DrawBoard.
      * @param pixelSize Size of a single pixel on the screen.
      * @param memory Reference to chip's memory.
      */
-    public SwingDisplay(int pixelSize, Memory memory, Keyboard keyboard, boolean overlappingMode) {
+    public SwingGUI(int pixelSize, Memory memory, Keyboard keyboard, boolean overlappingMode) {
         this.pixelWidth = pixelSize;
         this.pixelHeight = pixelSize;
 
@@ -115,10 +119,14 @@ public class SwingDisplay implements Display {
 
         if (!overlappingMode) {
             if (x < 0 || x > 63 || y < 0 || y > 31) {
-                System.out.println("Screen coordinate out out bounds, overlapping turned off.");
+                if (!warningSet) {
+                    System.out.println("Warning! Screen coordinate out out bounds, overlapping turned off.");
+                    warningSet = true;
+                }
                 return false;
             }
         }
+
         while (x < 0) {
             x = (64 + x) % 64;
 

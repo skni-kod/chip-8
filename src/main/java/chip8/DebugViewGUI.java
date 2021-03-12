@@ -20,7 +20,7 @@ public class DebugViewGUI {
 
     public void createGUI() {
         frame = new JFrame("Debug");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         frame.setResizable(true);
 

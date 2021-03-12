@@ -21,7 +21,7 @@ public class CPUTest {
         memory = new Memory();
         registry = new Registry();
         keyboard = new Keyboard();
-        display = new SwingDisplay(12, memory, keyboard, true); //most games use screen overlapping mode
+        display = new SwingGUI(12, memory, keyboard, true); //most games use screen overlapping mode
         cpu = new CPU(memory, registry, display, keyboard, false, false);
     }
 

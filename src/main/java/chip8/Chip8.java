@@ -1,6 +1,8 @@
 package chip8;
 
 import javax.sound.sampled.*;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,22 +17,36 @@ public class Chip8 {
     private Disassembler disassembler;
 
     private DebugViewGUI registerViewGUI;
+    boolean registerGUIFlag;
+
+    private int CPU_FREQ = 500;
 
     boolean soundUnavailable;
 
+    boolean loadStoreQuirk;
+    boolean shiftQuirk;
+    boolean overlappingMode;
 
     public Chip8(String filename) {
+        new Chip8(filename, 500, false, true, true, false);
+    }
+
+    public Chip8(String filename, int cpuFreq, boolean loadStoreQuirk, boolean shiftQuirk, boolean overlappingMode, boolean registerGUIFlag) {
         //quirks
-        boolean loadStoreQuirk = false;
-        boolean shiftQuirk = true;
-        boolean overlappingMode = true;
+        this.loadStoreQuirk = loadStoreQuirk;
+        this.shiftQuirk = shiftQuirk;
+        this.overlappingMode = overlappingMode;
+
+        this.registerGUIFlag = registerGUIFlag;
+
+        this.CPU_FREQ = cpuFreq;
 
         soundUnavailable = false;
 
         memory = new Memory();
         keyboard = new Keyboard();
         registry = new Registry();
-        display = new SwingDisplay(12, memory, keyboard, overlappingMode);
+        display = new SwingGUI(12, memory, keyboard, overlappingMode);
         cpu = new CPU(memory, registry, display, keyboard, loadStoreQuirk, shiftQuirk);
         disassembler = new Disassembler(memory);
 
@@ -44,23 +60,22 @@ public class Chip8 {
         int size;
         try {
             size = memory.loadFile(filename);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         display.createGUI();
 
-        registerViewGUI = new DebugViewGUI(registry, disassembler);
-        registerViewGUI.createGUI();
+        if (registerGUIFlag) {
+            registerViewGUI = new DebugViewGUI(registry, disassembler);
+            registerViewGUI.createGUI();
+        }
     }
 
     public void loop() {
 
         final int TIMER_TICK = 1000 / 60;
-        final int CPU_FREQ = 500;
         final int CPU_TICK = 1000 / CPU_FREQ;
-
-        int loops = 0;
 
         Timer delayTimer = new Timer();
 
@@ -84,8 +99,11 @@ public class Chip8 {
 
     public void renderAndDecrementTimers() {
         display.render();
-        registerViewGUI.updateRegisters();
-        registerViewGUI.updateInstructions();
+
+        if (registerGUIFlag) {
+            registerViewGUI.updateRegisters();
+            registerViewGUI.updateInstructions();
+        }
 
         if ((registry.DT & 0xFF) > 0) {
             registry.DT--;

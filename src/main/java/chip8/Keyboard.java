@@ -5,11 +5,34 @@ import java.awt.event.KeyListener;
 
 public class Keyboard implements KeyListener {
 
+    /**
+     * An array of booleans representing chip-8's keyboard.
+     * Chip-8's keyboard:
+     * 1|2|3|C
+     * 4|5|6|D
+     * 7|8|9|E
+     * A|0|B|F
+     * Modern keyboard mapping:
+     * 1|2|3|4
+     * Q|W|E|R
+     * A|S|D|F
+     * Z|X|C|V
+     * Keys are mapped from modern to chip-8's representation using getProperKeyCode(int keyCode) method.
+     * It is crucial to note that each key's indexes in the array are their hexadecimal values,
+     * for example: key "A" is held in pressedKeys[0xA], key "2" is held in pressedKeys[0x2].
+     * Each key holds a value indicating, whether it is currently pressed or not.
+     */
     private boolean[] pressedKeys = new boolean[16];
 
+    /**
+     * Number of the currently pressed keys.
+     */
     public int currentlyPressedCount = 0;
+
+    /**
+     * KeyCode of the most recently used key.
+     */
     public int lastUsed = 0;
-    private int lastUsedRelease = 0;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -18,16 +41,12 @@ public class Keyboard implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() != lastUsedRelease) {
-            setKey(e.getKeyCode(), true, true);
-            lastUsedRelease = e.getKeyCode();
-        }
+        setKey(e.getKeyCode(), true, true);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         setKey(e.getKeyCode(), false, true);
-        lastUsedRelease = -1;
     }
 
     /**
@@ -134,6 +153,10 @@ public class Keyboard implements KeyListener {
         }
     }
 
+    /**
+     * Waits for a single pressed key.
+     * @return KeyCode of the most recent key used.
+     */
     public int waitForKey() {
         try {
             while (currentlyPressedCount == 0) {

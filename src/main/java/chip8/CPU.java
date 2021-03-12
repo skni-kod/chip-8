@@ -2,20 +2,61 @@ package chip8;
 
 import java.util.Random;
 
+/**
+ * Class representing chip-8's central processing unit.
+ * Takes care of the instruction fetching, PC incrementing and the instruction execution.
+ */
 public class CPU {
 
+    /**
+     * Reference to the memory.
+     */
     private Memory memory;
+
+    /**
+     * Reference to the registry.
+     */
     private Registry registry;
+
+    /**
+     * Reference to the display interface.
+     */
     private Display display;
+
+    /**
+     * Reference to the keyboard.
+     */
     private Keyboard keyboard;
 
+    /**
+     * Random number generator reference used to generate chip-8's random value in instruction Cxkk.
+     */
     private Random randomGen;
 
+    /**
+     * Value of the currently fetched instruction.
+     */
     short currentInstr;
 
+    /**
+     * Whether the load-store quirk concerning Fx55 and Fx65 instructions should be used.
+     */
     boolean loadStoreQuirk;
+
+    /**
+     * Whether the shift quirk concerning 8xyE and 8xy7 instructions should be used.
+     */
     boolean shiftQuirk;
 
+    /**
+     * Main CPU constructor. Sets PC at program's beginning (memory 0x200), sets SP to -1 (empty).
+     * @param memory Reference to the memory.
+     * @param registry Reference to the registry.
+     * @param display Reference to the display interface.
+     * @param keyboard Reference to the keyboard.
+     * @param loadStoreQuirk Whether to use loadStoreQuirk.
+     * @param shiftQuirk Whether to use shiftQuirk.
+     */
     public CPU(Memory memory, Registry registry, Display display, Keyboard keyboard, boolean loadStoreQuirk, boolean shiftQuirk) {
         this.memory = memory;
         this.registry = registry;
@@ -32,7 +73,11 @@ public class CPU {
         this.registry.SP = -1;
     }
 
-    void fetch() {
+    /**
+     * Fetches a single instruction (two bytes) from the memory's index stored in PC.
+     * Sets currentInstr using two loaded bytes (currentInstr is a short).
+     */
+    public void fetch() {
         // Two bytes of the instruction
         byte first = memory.get(registry.PC);
         byte second = memory.get((short) (registry.PC + 1));
@@ -41,11 +86,17 @@ public class CPU {
         currentInstr = (short) (((first & 0xFF) << 8) | (second & 0xFF));
     }
 
-    void incrementPC() {
+    /**
+     * Increments PC by 2 bytes (size of a single chip-8 instruction).
+     */
+    public void incrementPC() {
         registry.PC = (short) (registry.PC + 0x02);
     }
 
-    void decodeAndExecute() {
+    /**
+     * Executes the instruction stored in currentInstr.
+     */
+    public void decodeAndExecute() {
         byte firstNib = (byte) ((currentInstr >> 12) & 0xF);
 
         switch (firstNib) {

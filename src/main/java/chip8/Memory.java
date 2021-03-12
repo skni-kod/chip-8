@@ -9,6 +9,7 @@ import java.nio.file.Files;
  */
 public class Memory {
 
+    //position of each sprite in the memory, beginning from address 0x0, each sprite 5 bytes long
     public static final byte SPRITE_0 = 0;
     public static final byte SPRITE_1 = 5;
     public static final byte SPRITE_2 = 10;
@@ -143,6 +144,12 @@ public class Memory {
         }
     }
 
+    /**
+     * Gets a single short value from the stack.
+     * Allows us to get any value from the stack, so a stack pointer is necessary.
+     * @param address Address of the value on the stack. Usually, a stack pointer.
+     * @return Value held under the address in the stack.
+     */
     public short getStack(short address) {
         if (address > 0x0F) {
             System.out.println("Stack address " + address +  " out of range!");
@@ -152,6 +159,12 @@ public class Memory {
         }
     }
 
+    /**
+     * Sets a single short value in the stack.
+     * @param address Address of the value on the stack to set.
+     * @param value Value to set.
+     * @return True if successful, otherwise false.
+     */
     public boolean setStack(short address, short value) {
         if (address > 0x0F) {
             System.out.println("Stack address " + address +  " out of range!");

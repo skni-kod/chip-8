@@ -200,6 +200,12 @@ public class Disassembler {
         return stringBuilder.toString();
     }
 
+    /**
+     * Disassembles a part of the chip-8's memory and saves the output to a text file.
+     * @param start The beginning index of the memory.
+     * @param size Number of bytes from the memory to disassemble.
+     * @param filename Name of the file to save the output to.
+     */
     public void disassembleToFile(short start, int size, String filename) {
         try {
             FileWriter writer = new FileWriter(filename);

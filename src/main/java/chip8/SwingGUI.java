@@ -83,6 +83,7 @@ public class SwingGUI implements Display {
     public void createGUI() {
         frame = new JFrame("Chip-8");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
         frame.addKeyListener(keyboard);
 
@@ -102,7 +103,8 @@ public class SwingGUI implements Display {
         drawBoard.setPreferredSize(new Dimension(pixelWidth * 64, pixelHeight * 32));
         frame.getContentPane().add(drawBoard);
 
-        frame.setSize(new Dimension(pixelWidth * 64 + 16, pixelHeight * 32 + 64));
+        frame.setSize(new Dimension(pixelWidth * 64, pixelHeight * 32 ));
+
         frame.setVisible(true);
 
         screenImg = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);

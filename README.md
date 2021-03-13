@@ -103,21 +103,33 @@ When the shift quirk is turned on, register `Vx` is the shifted one.
 
 When the shift quirk is turned off, register `Vy` is the shifted one.
 
+### Screen overlapping
+
+[Cowgod's reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM) states, that when a sprite is drawn on the screen and
+ a part of the sprite is positioned partially outside the screen border, it should wrap around to the other side of the screen.
+[Mattmikolay's reference](https://github.com/mattmikolay/chip-8/wiki/CHIP%E2%80%908-Instruction-Set) states, that in this 
+situation sprite's sticking out part should just be clipped. 
+
+When the overlapping mode is turned on, sprites positioned partially outside the screen border will be wrapped around and 
+drawn on the other side.
+
+When the overlapping mode is turned off, sprites positioned partially outside the screen border will be clipped.
+
 ## Compatible games
 
 Here are some games I tested and found working properly with certain launch parameters.
 
 ### TODO
 
+## Screenshots
+
 ![Tetris game](/screenshots/7.png?raw=true)
 
 ![UFO game](/screenshots/2.png?raw=true)
 
-![Real time register view](/screenshots/3.png?raw=true)
-
 ![Lander game](/screenshots/5.png?raw=true)
 
-### TODO
+![Real time register view](/screenshots/3.png?raw=true)
 
 ## References
 

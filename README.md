@@ -118,8 +118,27 @@ When the overlapping mode is turned off, sprites positioned partially outside th
 ## Compatible games
 
 Here are some games I tested and found working properly with certain launch parameters.
+Tuning the launch parameters to your own preferences is always a good idea!
+It also seems that older games tend to not use the shift quirk.
 
-### TODO
+|Name|Author|Overlapping mode|Load-store quirk|Shift quirk|CPU frequency|
+|---|---|---|----|---|---|
+|Default values|---|True|False|True|500|
+|Space Invaders|David Winter|True|False|True|400|
+|Blitz|---|False|False|True|300-400|
+|Brix|Andreas Gustafsson|True|False|True|500|
+|Connect 4|David Winter|True|True|True|100|
+|Hidden|David Winter|True|True|True|200|
+|Kaleidoscope|Joseph Weisbecker|True|False|True|500|
+|Lunar lander|Udo Pernisz|True|False|True|300|
+|Merlin|David Winter|True|False|True|500|
+|Pong|Paul Vervalin|True|False|True|500|
+|Tetris|Fran Dachille|True|False|True|500|
+|UFO|---|True|False|True|400-500|
+|Missile|David Winter|True|False|True|200|
+|Most Dangerous Game|Peter Maruhnic|True|False|False|500|
+|Rush Hour|hap|True|False|True|500|
+|Animal Race|Brian Astle|True|False|True|500|
 
 ## Screenshots
 

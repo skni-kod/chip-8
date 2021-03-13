@@ -7,6 +7,7 @@
     <groupId>groupId</groupId>
     <artifactId>chip-8</artifactId>
     <version>1.0</version>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -26,6 +27,16 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+            </plugin>
+            <plugin><groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>chip8.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

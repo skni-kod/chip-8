@@ -2,7 +2,6 @@ package chip8;
 
 import javax.sound.sampled.*;
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.util.Timer;
 import java.util.TimerTask;
 

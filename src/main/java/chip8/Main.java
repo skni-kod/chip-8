@@ -8,6 +8,7 @@ public class Main {
 
         if (args.length == 0) {
             System.out.println("Usage: java -jar chip8.jar (ROM_PATH) (-PARAMETERS)");
+            return;
         }
 
         String filename = args[0];
@@ -24,6 +25,9 @@ public class Main {
                 case "-freq": {
                     if (i + 1 < args.length) {
                         cpuFreq = Integer.parseInt(args[i + 1]);
+                        if (cpuFreq <= 0) {
+                            cpuFreq = 1;
+                        }
                         i++;
                     }
                     break;

@@ -18,7 +18,7 @@ font data.
 2 8-bit `DT` and `ST` registers for delay and sound timers, 16-bit `PC` register for a program counter and an 8-bit `SP` 
   register for a stack pointer.
   
-- Keyboard with 16-key hexadecimal keyboard.
+- Keyboard with 16-key hexadecimal valued keys.
 
 - 64x32 pixel monochrome display.
 
@@ -52,6 +52,19 @@ The output package can be found in the target folder.
 ```
 java -jar chip8.jar (ROM PATH) (PARAMETERS)
 ```
+
+## Keyboard mapping
+
+Keyboard that was used by computers the chip-8 was initially designed for consists of 16 keys. Each key has its individual
+hexadecimal value. To fit the keyboard onto the modern ones, a key mapping is a necessity. This interpreter uses the following
+key mapping:
+
+|Original|Interpreter|
+|---|---|
+|1 2 3 C|1 2 3 4|
+|4 5 6 D|Q W E R|
+|7 8 9 E|A S D F|
+|A 0 B F|Z X C V|
 
 ## Parameters
 
@@ -125,20 +138,23 @@ It also seems that older games tend to not use the shift quirk.
 |---|---|---|----|---|---|
 |Default values|---|True|False|True|500|
 |Space Invaders|David Winter|True|False|True|400|
-|Blitz|---|False|False|True|300-400|
-|Brix|Andreas Gustafsson|True|False|True|500|
+|Blitz|David Winter|False|False|True|300-400|
 |Connect 4|David Winter|True|True|True|100|
 |Hidden|David Winter|True|True|True|200|
-|Kaleidoscope|Joseph Weisbecker|True|False|True|500|
 |Lunar lander|Udo Pernisz|True|False|True|300|
-|Merlin|David Winter|True|False|True|500|
-|Pong|Paul Vervalin|True|False|True|500|
-|Tetris|Fran Dachille|True|False|True|500|
 |UFO|---|True|False|True|400-500|
 |Missile|David Winter|True|False|True|200|
 |Most Dangerous Game|Peter Maruhnic|True|False|False|500|
-|Rush Hour|hap|True|False|True|500|
-|Animal Race|Brian Astle|True|False|True|500|
+
+Games I found working properly with the default settings:
+- Brix (Andreas Gustafsson),
+- Kaleidoscope (Joseph Weisbecker),
+- Merlin (David Winter),
+- Pong (Paul Vervalin),
+- Tetris (Fran Dachille),
+- Rush Hour (hap),
+- Animal Race (Brian Astle).
+
 
 ## Screenshots
 
@@ -149,6 +165,12 @@ It also seems that older games tend to not use the shift quirk.
 ![Lander game](/screenshots/5.png?raw=true)
 
 ![Real time register view](/screenshots/3.png?raw=true)
+
+## Ideas for future improvements
+
+- [ ] Add the ability to change screen colours.
+- [ ] Add the ability to pause, save and load the interpreter's state.
+- [ ] Add the GUI for ROM loading and quirk setting.
 
 ## References
 

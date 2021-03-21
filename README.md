@@ -1,3 +1,5 @@
+![Project logo](/screenshots/CHIP8_logo2.png?raw=true)
+
 # Chip-8 interpreter
 
 Chip-8 is an interpreted language developed in the 70's, intended to ease 

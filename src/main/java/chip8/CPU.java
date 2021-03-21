@@ -36,17 +36,17 @@ public class CPU {
     /**
      * Value of the currently fetched instruction.
      */
-    short currentInstr;
+    private short currentInstr;
 
     /**
      * Whether the load-store quirk concerning Fx55 and Fx65 instructions should be used.
      */
-    boolean loadStoreQuirk;
+    private boolean loadStoreQuirk;
 
     /**
      * Whether the shift quirk concerning 8xyE and 8xy7 instructions should be used.
      */
-    boolean shiftQuirk;
+    private boolean shiftQuirk;
 
     /**
      * Main CPU constructor. Sets PC at program's beginning (memory 0x200), sets SP to -1 (empty).

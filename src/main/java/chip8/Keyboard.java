@@ -30,12 +30,12 @@ public class Keyboard implements KeyListener {
     /**
      * Number of the currently pressed keys.
      */
-    public int currentlyPressedCount = 0;
+    private int currentlyPressedCount = 0;
 
     /**
      * KeyCode of the most recently used key.
      */
-    public int lastUsed = 0;
+    private int lastUsed = 0;
 
     @Override
     public void keyTyped(KeyEvent e) {

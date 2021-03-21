@@ -1,3 +1,5 @@
+package chip8;
+
 import chip8.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

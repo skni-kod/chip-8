@@ -150,7 +150,7 @@ public class Memory {
      * @param address Address of the value on the stack. Usually, a stack pointer.
      * @return Value held under the address in the stack.
      */
-    public short getStack(short address) {
+    public short getStack(byte address) {
         if (address > 0x0F) {
             System.out.println("Stack address " + address +  " out of range!");
             return 0x0;

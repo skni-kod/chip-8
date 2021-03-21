@@ -1,4 +1,4 @@
-![Project logo](/screenshots/CHIP8_logo2.png?raw=true)
+![Project logo](/screenshots/CHIP8_logo2_512.png?raw=true)
 
 # Chip-8 interpreter
 
